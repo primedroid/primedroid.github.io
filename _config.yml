@@ -2,8 +2,10 @@
 title: PrimeDroid
 url: "http://primedroid.github.io"
 baseurl: ""
+comments: true
 description: >
   Musings observations and the ocassional insights regarding Android.
+  
 
 # Your information
 email: sastagi@example.com
@@ -12,11 +14,11 @@ avatar: "https://en.gravatar.com/userimage/101856459/0eaa047c331fd9937f460615316
 profile: Android developer.
 twitter_username: sastagi
 github_username:  sastagi
-comments: true
+
 
 #Comment Service (Disqus or 多说)
 #  choose one and un-comment the line to active it
-disqus_shortname: santoshastagi   # get one: https://disqus.com/admin/signup/
+disqus_shortname: primedroidgithubio   # get one: https://disqus.com/admin/signup/
 #duoshuo_shortname: xxx  # get one: http://duoshuo.com/create-site/
 
 permalink: /archivers/:title
