@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Account authenticator tutorial « PrimeDroid</title>
+  <meta name="description" content="Let us start at the beginning. You have an android app and want to allow users to create an account on your app. You might think about storing the user ident...">
+
+  <link rel="stylesheet" href="/primedroid/css/main.css">
+  <link rel="canonical" href="http://primedroid.github.io/primedroid/archivers/accountauthenticator">
+  <link rel="alternate" type="application/rss+xml" title="PrimeDroid" href="http://primedroid.github.io/primedroid/feed.xml" />
+</head>
+
+
+  <body>
+
+    <header class="header">
+  <div class="wrapper">
+    <a class="site-title" href="/primedroid/">PrimeDroid</a>
+    <nav class="site-nav">
+      
+        
+      
+        
+        <a class="page-link" href="/primedroid/about/">About</a>
+        
+      
+        
+        <a class="page-link" href="/primedroid/category/">Category</a>
+        
+      
+        
+      
+        
+      
+        
+      
+    </nav>
+  </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="col-main">
+          <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Account authenticator tutorial</h1>
+    <p class="post-meta">Mar 27, 2014</p>
+  </header>
+
+  <article class="post-content">
+    <p>Let us start at the beginning. You have an android app and want to allow users to create an account on your app. You might think about storing the user identifying token in shared preferences or sqllite DB, or just make a server call every time. There  may be some solid implementations for these, but Android actually provides a mechanism for account creation and management. So let’s make use of it. But how? This is what grinds my gears. 
+The documentation is sparse in my opinion and if not for some good blogs (mentioned at the bottom) I’d be stuck too. So this is one more attempt at demystifying the Account Authenticator.</p>
+
+<p>The account authenticator route involves a lot of boiler palte code. But this is because as your app becomes popular, you will need to cover for all the edge cases which are thoroughly researched and provided for in the Account authenticator. You don’t have to implement all of them, but on a case by cases basis. Also, if you plan to use the Sync adapter (highly recommend for server and local device data syncs), you will need an account created using Account Authenticator. 
+So let’s get going.</p>
+
+<p><strong>Big picture</strong></p>
+
+<p>We will create a sample app where the user will be presented with a login screen on launch. The user can then login and every time time the user launches the app after that, the user will see the logged in screen. So create an android app with the single activity.</p>
+
+<p><strong>Step 1: Create a class that extends AbstractAccountAuthenticator</strong></p>
+
+<p>Create a new class called <code class="highlighter-rouge">AccountAuthenticator</code> and make it extend AbstractAccountAuthenticator. You will need to implement seven methods. Stub them to return null for now.</p>
+
+<p><strong>Step 2: Create an activity with the login screen</strong></p>
+
+<p>This is the activity which the user will be directed to if there Account authenticator is unable to find token. In the sample app this is called LoginActivity.</p>
+
+<p><strong>Step 3: Create a java file to store all account related info</strong></p>
+
+<p>We will call this AccountInfo.java and store the following string constants: <code class="highlighter-rouge">ACCOUNT_TYPE</code>, <code class="highlighter-rouge">ACCOUNT_NAME</code> and <code class="highlighter-rouge">AUTHTOKENTYPE</code></p>
+
+<p><strong>Step 4: Create the service to bind the AccountAuthenticator</strong></p>
+
+<p>Create a service to bind the AccountAuthenticator. We will call this AccountAuthenticatorService. Don’t forget to include the information for this service in the manifest.</p>
+
+<p><strong>Step 5: Add the required permissions to the manifest</strong></p>
+
+<p>We will need the following four permission to make this work: <code class="highlighter-rouge">GET_ACCOUNTS</code>, <code class="highlighter-rouge">USE_CREDENTIALS</code>, <code class="highlighter-rouge">MANAGE_ACCOUNTS</code>, <code class="highlighter-rouge">AUTHENTICATE_ACCOUNTS</code></p>
+
+<p><strong>Step 6: Create the xml files for settings screen</strong></p>
+
+<p>One of the cool features of using the Account authenticator is that your app pops up in the accounts screen under the Android settings section. We need to provide the info. for the representation of this using xml. So create the following two files and put them under resources/xml: authenticator.xml, prefs.xml</p>
+
+<p><code class="highlighter-rouge">CAUTION</code> - Make sure that the accountType attribute value in authenticator.xml matches the string in ACCOUNT_TYPE.</p>
+
+<p><strong>Step 7: Check for token in MainActivity on launch</strong></p>
+
+<p>This is where the fun begins. Now you will need an instance of AccountManager here. So create one (mAccountManager). Create a method checkAccountExists and pass authtoken to it.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">checkAccount</span><span class="p">(</span><span class="kd">final</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="n">Account</span> <span class="n">availableAccounts</span><span class="o">[]</span> <span class="o">=</span> <span class="n">mAccountManager</span><span class="o">.</span><span class="na">getAccountsByType</span><span class="o">(</span><span class="n">AccountInfo</span><span class="o">.</span><span class="na">ACCOUNT_TYPE</span><span class="o">);</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">availableAccounts</span><span class="o">.</span><span class="na">length</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">addNewAccount</span><span class="o">(</span><span class="n">AccountInfo</span><span class="o">.</span><span class="na">ACCOUNT_TYPE</span><span class="o">,</span><span class="n">authTokenType</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">name</span><span class="o">[]</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">[</span><span class="n">availableAccounts</span><span class="o">.</span><span class="na">length</span><span class="o">];</span>
+            <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">availableAccounts</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+                <span class="n">name</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="n">availableAccounts</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">name</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="n">getExistingAccountAuthToken</span><span class="o">(</span><span class="n">availableAccounts</span><span class="o">[</span><span class="mi">0</span><span class="o">],</span> <span class="n">authTokenType</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>In this method we are asking the AccountManager is there is a token for this app already. If there no token in found, we will call addNewAccount, which directs the user to the login screen. We will talk about the getExistingAccountAuthToken method in step 10.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">addNewAccount</span><span class="p">(</span><span class="n">String</span> <span class="n">accountType</span><span class="o">,</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="n">AccountManagerFuture</span><span class="o">&lt;</span><span class="n">Bundle</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">mAccountManager</span><span class="o">.</span><span class="na">addAccount</span><span class="o">(</span><span class="n">accountType</span><span class="o">,</span> <span class="n">authTokenType</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="k">new</span> <span class="n">AccountManagerCallback</span><span class="o">&lt;</span><span class="n">Bundle</span><span class="o">&gt;()</span> <span class="o">{</span>
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="n">run</span><span class="o">(</span><span class="n">AccountManagerFuture</span><span class="o">&lt;</span><span class="n">Bundle</span><span class="o">&gt;</span> <span class="n">future</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="n">Bundle</span> <span class="n">bnd</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">getResult</span><span class="o">();</span>
+                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">},</span> <span class="kc">null</span><span class="o">);</span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>This is where we need to implement the addAccount method of AbstractAccountAuthenticator, to redirect the user to the login screen.</p>
+
+<p><strong>Step 8: Implement addAccount method of AbstractAccountAuthenticator</strong></p>
+
+<p>The following method calls the LoginActivity and returns a bundle to the previous method that tells if the account was added successfully.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Bundle</span> <span class="n">addAccount</span><span class="o">(</span><span class="n">AccountAuthenticatorResponse</span> <span class="n">response</span><span class="o">,</span> <span class="n">String</span> <span class="n">accountType</span><span class="o">,</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">requiredFeatures</span><span class="o">,</span> <span class="n">Bundle</span> <span class="n">options</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">NetworkErrorException</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="n">Intent</span> <span class="n">intent</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">mContext</span><span class="o">,</span>  <span class="n">LoginActivity</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">intent</span><span class="o">.</span><span class="na">putExtra</span><span class="o">(</span><span class="n">AccountAuthenticator</span><span class="o">.</span><span class="na">ARG_ACCOUNT_TYPE</span><span class="o">,</span> <span class="n">accountType</span><span class="o">);</span>
+        <span class="n">intent</span><span class="o">.</span><span class="na">putExtra</span><span class="o">(</span><span class="n">AccountAuthenticator</span><span class="o">.</span><span class="na">ARG_AUTH_TYPE</span><span class="o">,</span> <span class="n">authTokenType</span><span class="o">);</span>
+        <span class="n">intent</span><span class="o">.</span><span class="na">putExtra</span><span class="o">(</span><span class="n">AccountAuthenticator</span><span class="o">.</span><span class="na">ARG_IS_ADDING_NEW_ACCOUNT</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+        <span class="n">intent</span><span class="o">.</span><span class="na">putExtra</span><span class="o">(</span><span class="n">AccountManager</span><span class="o">.</span><span class="na">KEY_ACCOUNT_AUTHENTICATOR_RESPONSE</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+
+        <span class="kd">final</span> <span class="n">Bundle</span> <span class="n">bundle</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Bundle</span><span class="o">();</span>
+        <span class="n">bundle</span><span class="o">.</span><span class="na">putParcelable</span><span class="o">(</span><span class="n">AccountManager</span><span class="o">.</span><span class="na">KEY_INTENT</span><span class="o">,</span> <span class="n">intent</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">bundle</span><span class="o">;</span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+
+<p><strong>BREAK</strong></p>
+
+<p>If you have come so far, I admire your patience. So at this point, try to run your app. You should be directed to the Login activity (since you do not have an account with account manager). If not, watch out for these common gotchas:</p>
+
+<ul>
+  <li>Check name of account type in authenticator.xml</li>
+  <li>Check permissions in manifest</li>
+  <li>Check declarations for activities and services</li>
+</ul>
+
+<p><strong>Step 9: Add account to account manager</strong></p>
+
+<p>When the user clicks the login button,  we want to add the account to the Account manager. So create a method called addAccount in your LoginActivity and call it on the click of login button:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">addAccount</span><span class="p">(</span><span class="o">){</span>
+        <span class="c1">//This is where you make the server call and get the authorization tokens. Adding dummy stuff here.</span>
+        <span class="n">String</span> <span class="n">username</span> <span class="o">=</span> <span class="n">mEmailField</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
+        <span class="n">String</span> <span class="n">password</span> <span class="o">=</span> <span class="n">mPasswordField</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
+        <span class="n">String</span> <span class="n">token</span> <span class="o">=</span> <span class="n">UUID</span><span class="o">.</span><span class="na">randomUUID</span><span class="o">()+</span><span class="s">"-prime"</span><span class="o">;</span>
+
+        <span class="k">if</span><span class="o">(</span><span class="n">TextUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">username</span><span class="o">)||</span><span class="n">TextUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">password</span><span class="o">)){</span>
+            <span class="n">mInvalidCredentials</span><span class="o">.</span><span class="na">setVisibility</span><span class="o">(</span><span class="n">View</span><span class="o">.</span><span class="na">GONE</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="kd">final</span> <span class="n">Account</span> <span class="n">account</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Account</span><span class="o">(</span><span class="n">username</span><span class="o">,</span> <span class="n">AccountInfo</span><span class="o">.</span><span class="na">ACCOUNT_TYPE</span><span class="o">);</span>
+            <span class="n">MainActivity</span><span class="o">.</span><span class="na">mAccountManager</span><span class="o">.</span><span class="na">addAccountExplicitly</span><span class="o">(</span><span class="n">account</span><span class="o">,</span> <span class="n">password</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+            <span class="n">MainActivity</span><span class="o">.</span><span class="na">mAccountManager</span><span class="o">.</span><span class="na">setAuthToken</span><span class="o">(</span><span class="n">account</span><span class="o">,</span> <span class="n">AccountInfo</span><span class="o">.</span><span class="na">AUTHTOKENTYPE</span><span class="o">,</span> <span class="n">token</span><span class="o">);</span>
+            <span class="n">mInvalidCredentials</span><span class="o">.</span><span class="na">setVisibility</span><span class="o">(</span><span class="n">View</span><span class="o">.</span><span class="na">GONE</span><span class="o">);</span>
+            <span class="n">startActivity</span><span class="o">(</span><span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">MainActivity</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+            <span class="n">finish</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>If you run the app now and login using any non-empty credentials, you will be taken to the main activity. Subsequent launches will take you straight to the main activity, since you have an account with the Account manager.</p>
+
+<p><strong>Step 10: Get auth token for existing account</strong></p>
+
+<p>Addressing step 7 here. When the user launches the app again, getExistingAccountAuthToken will be called returning info. regarding the account. You can get the username, auth token and any other info. that you store during account creation form here.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">getExistingAccountAuthToken</span><span class="p">(</span><span class="n">Account</span> <span class="n">account</span><span class="o">,</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="n">AccountManagerFuture</span><span class="o">&lt;</span><span class="n">Bundle</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">mAccountManager</span><span class="o">.</span><span class="na">getAuthToken</span><span class="o">(</span><span class="n">account</span><span class="o">,</span> <span class="n">authTokenType</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+
+        <span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="n">run</span><span class="o">()</span> <span class="o">{</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="n">Bundle</span> <span class="n">bundle</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">getResult</span><span class="o">();</span>
+                    <span class="kd">final</span> <span class="n">String</span> <span class="n">authtoken</span> <span class="o">=</span> <span class="n">bundle</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">AccountManager</span><span class="o">.</span><span class="na">KEY_ACCOUNT_NAME</span><span class="o">);</span>
+                    <span class="n">mUsername</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">authtoken</span><span class="o">);</span>
+                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}).</span><span class="na">start</span><span class="o">();</span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+
+<p><strong>Step 11: DONE!!!</strong></p>
+
+<p>Yes, you are done. That’s it. Ten steps and you have implemented your account authenticator. Feel free to download the sample app from:</p>
+
+<p><a href="https://github.com/sastagi/primeaccount">https://github.com/sastagi/primeaccount</a></p>
+
+<p>The account authenticator is way more powerful than what I have mentioned here. There are a bunch of other interesting feature that you can use creatively. Some other interesting blogs on Account authenticator:</p>
+
+<ul>
+  <li>
+    <p><a href="http://blog.udinic.com/2013/04/24/write-your-own-android-authenticator">http://blog.udinic.com/2013/04/24/write-your-own-android-authenticator</a></p>
+  </li>
+  <li>
+    <p><a href="https://www.finalconcept.com.au/article/view/android-account-manager-step-by-step-2">https://www.finalconcept.com.au/article/view/android-account-manager-step-by-step-2</a></p>
+  </li>
+  <li>
+    <p><a href="http://www.c99.org/2010/01/23/writing-an-android-sync-provider-part-1/">http://www.c99.org/2010/01/23/writing-an-android-sync-provider-part-1/</a></p>
+  </li>
+</ul>
+
+  </article>
+  
+  
+
+</div>
+
+          
+          
+        </div>
+        <div class="col-second">
+          <div class="col-box col-box-author">
+  <img class="avatar" src="https://en.gravatar.com/userimage/101856459/0eaa047c331fd9937f46061531642999.png?size=200" alt="Santosh Astagi">
+  <div class="col-box-title name">Santosh Astagi</div>
+  <p>Android developer.</p>
+  <p class="contact">
+    
+    <a href="https://github.com/sastagi">GitHub</a>
+    
+    
+    <a href="https://twitter.com/sastagi">Twitter</a>
+    
+    
+    <a href="mailto:sastagi@example.com">Email</a>
+    
+  </p>
+</div>
+
+<div class="col-box">
+  <div class="col-box-title">Newest Posts</div>
+  <ul class="post-list">
+    
+      <li><a class="post-link" href="/primedroid/archivers/accountauthenticator">Account authenticator tutorial</a></li>
+    
+      <li><a class="post-link" href="/primedroid/archivers/aboutme">Style Test</a></li>
+    
+  </ul>
+</div>
+
+<div class="col-box post-toc hide">
+  <div class="col-box-title">TOC</div>
+</div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+<div class="wrapper">
+&copy; 2016 Santosh Astagi
+</div>
+</footer>
+
+<script src="/primedroid/js/easybook.js"></script>
+
+  </body>
+
+</html>

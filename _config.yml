@@ -1,0 +1,38 @@
+# Site settings
+title: PrimeDroid
+url: "http://primedroid.github.io"
+baseurl: "/primedroid"
+#timezone: United States
+description: >
+  Musings observations and the ocassional insights regarding Android.
+
+# Your information
+email: sastagi@example.com
+author: Santosh Astagi
+avatar: "https://en.gravatar.com/userimage/101856459/0eaa047c331fd9937f46061531642999.png?size=200"
+profile: Android developer.
+twitter_username: sastagi
+github_username:  sastagi
+comments: true
+
+#Comment Service (Disqus or 多说)
+#  choose one and un-comment the line to active it
+disqus_shortname: santoshastagi   # get one: https://disqus.com/admin/signup/
+#duoshuo_shortname: xxx  # get one: http://duoshuo.com/create-site/
+
+permalink: /archivers/:title
+gems:
+ - jekyll-paginate
+ - jekyll-gist
+ - jemoji
+
+# Build settings
+paginate: 5
+paginate_path: "page:num"
+
+highlighter: rouge
+markdown: kramdown
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
