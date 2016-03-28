@@ -169,6 +169,8 @@ The account authenticator has many more features than mentioned here. They cover
 
 * [http://blog.udinic.com/2013/04/24/write-your-own-android-authenticator](http://blog.udinic.com/2013/04/24/write-your-own-android-authenticator)
 
+* [https://www.fussylogic.co.uk/blog/?p=1031](https://www.fussylogic.co.uk/blog/?p=1031)
+
 * [https://www.finalconcept.com.au/article/view/android-account-manager-step-by-step-2](https://www.finalconcept.com.au/article/view/android-account-manager-step-by-step-2)
 
 * [http://www.c99.org/2010/01/23/writing-an-android-sync-provider-part-1/](http://www.c99.org/2010/01/23/writing-an-android-sync-provider-part-1/)
