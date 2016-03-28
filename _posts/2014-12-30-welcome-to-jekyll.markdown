@@ -4,6 +4,7 @@ title:  "Account authenticator tutorial"
 date:   2014-03-27 12:00:00
 categories: Android
 permalink: /archivers/accountauthenticator
+comments: True
 ---
 
 Let us start at the beginning. You have an android app and want to allow users to create an account on your app. You might think about storing the user identifying token in shared preferences or sqllite DB, or just make a server call every time. There  may be some solid implementations for these, but Android actually provides a mechanism for account creation and management. So let's make use of it. But how? This is what grinds my gears. 
