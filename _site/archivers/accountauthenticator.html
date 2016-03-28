@@ -66,42 +66,42 @@
     <p>Let us start at the beginning. You have an android app and want to allow users to create an account on your app. You might think about storing the user identifying token in shared preferences or sqllite DB, or just make a server call every time. There  may be some solid implementations for these, but Android actually provides a mechanism for account creation and management. So let’s make use of it. But how? This is what grinds my gears. 
 The documentation is sparse in my opinion and if not for some good blogs (mentioned at the bottom) I’d be stuck too. So this is one more attempt at demystifying the Account Authenticator.</p>
 
-<p>The account authenticator route involves a lot of boiler palte code. But this is because as your app becomes popular, you will need to cover for all the edge cases which are thoroughly researched and provided for in the Account authenticator. You don’t have to implement all of them, but on a case by cases basis. Also, if you plan to use the Sync adapter (highly recommend for server and local device data syncs), you will need an account created using Account Authenticator. 
+<p>The account authenticator route involves a lot of boiler plate code. But this is because as your app becomes popular, you will need to cover for all the edge cases which are thoroughly researched and provided for in the account authenticator. You don’t have to implement all of them, but address them on a case by case basis. Also, if you plan to use the Sync adapter (highly recommend for server and local device data syncs), you will need an account created using Account Authenticator. 
 So let’s get going.</p>
 
-<p><strong>Big picture</strong></p>
+<p><strong>Objective</strong></p>
 
-<p>We will create a sample app where the user will be presented with a login screen on launch. The user can then login and every time time the user launches the app after that, the user will see the logged in screen. So create an android app with the single activity.</p>
+<p>We will create a sample app where the user will be presented with a login screen on launch. The user can then login and every time time the user launches the app after that, the user will see the logged in screen. So create an android app with a single activity (MainActivity.java).</p>
 
 <p><strong>Step 1: Create a class that extends AbstractAccountAuthenticator</strong></p>
 
-<p>Create a new class called <code class="highlighter-rouge">AccountAuthenticator</code> and make it extend AbstractAccountAuthenticator. You will need to implement seven methods. Stub them to return null for now.</p>
+<p>Create a new class called <a href="https://github.com/sastagi/primeaccount/blob/master/app/src/main/java/com/primedroid/primeaccount/AccountAuthenticator.java">AccountAuthenticator</a> and make it extend <a href="http://developer.android.com/reference/android/accounts/AbstractAccountAuthenticator.html">AbstractAccountAuthenticator</a>. You will need to implement seven methods. Stub them to return null for now.</p>
 
 <p><strong>Step 2: Create an activity with the login screen</strong></p>
 
-<p>This is the activity which the user will be directed to if there Account authenticator is unable to find token. In the sample app this is called LoginActivity.</p>
+<p>This is the activity which the user will be directed to, if the Account authenticator is unable to find a token. In the sample app this is called <a href="https://github.com/sastagi/primeaccount/blob/master/app/src/main/java/com/primedroid/primeaccount/LoginActivity.java">LoginActivity</a>. Provide a couple of Edittext fields and a button for the user to login.</p>
 
 <p><strong>Step 3: Create a java file to store all account related info</strong></p>
 
-<p>We will call this AccountInfo.java and store the following string constants: <code class="highlighter-rouge">ACCOUNT_TYPE</code>, <code class="highlighter-rouge">ACCOUNT_NAME</code> and <code class="highlighter-rouge">AUTHTOKENTYPE</code></p>
+<p>We will call this <a href="https://github.com/sastagi/primeaccount/blob/master/app/src/main/java/com/primedroid/primeaccount/AccountInfo.java">AccountInfo</a> and store the following string constants: <code class="highlighter-rouge">ACCOUNT_TYPE</code>, <code class="highlighter-rouge">ACCOUNT_NAME</code> and <code class="highlighter-rouge">AUTHTOKENTYPE</code></p>
 
 <p><strong>Step 4: Create the service to bind the AccountAuthenticator</strong></p>
 
-<p>Create a service to bind the AccountAuthenticator. We will call this AccountAuthenticatorService. Don’t forget to include the information for this service in the manifest.</p>
+<p>We will need a service to bind the AccountAuthenticator with the activity. We will call this <a href="https://github.com/sastagi/primeaccount/blob/master/app/src/main/java/com/primedroid/primeaccount/AccountAuthenticatorService.java">AccountAuthenticatorService</a>. Don’t forget to include the information for this service in the manifest.</p>
 
 <p><strong>Step 5: Add the required permissions to the manifest</strong></p>
 
-<p>We will need the following four permission to make this work: <code class="highlighter-rouge">GET_ACCOUNTS</code>, <code class="highlighter-rouge">USE_CREDENTIALS</code>, <code class="highlighter-rouge">MANAGE_ACCOUNTS</code>, <code class="highlighter-rouge">AUTHENTICATE_ACCOUNTS</code></p>
+<p>We will need the following four permissions to make this work: <code class="highlighter-rouge">GET_ACCOUNTS</code>, <code class="highlighter-rouge">USE_CREDENTIALS</code>, <code class="highlighter-rouge">MANAGE_ACCOUNTS</code>, <code class="highlighter-rouge">AUTHENTICATE_ACCOUNTS</code></p>
 
 <p><strong>Step 6: Create the xml files for settings screen</strong></p>
 
-<p>One of the cool features of using the Account authenticator is that your app pops up in the accounts screen under the Android settings section. We need to provide the info. for the representation of this using xml. So create the following two files and put them under resources/xml: authenticator.xml, prefs.xml</p>
+<p>One of the cool features of using the account authenticator is that your app pops up in the accounts screen under the Android settings section. We need to provide the information for the representation of this using xml. So create the following two files and put them under resources/xml: <a href="https://github.com/sastagi/primeaccount/blob/master/app/src/main/res/xml/authenticator.xml">authenticator.xml</a>, <a href="https://github.com/sastagi/primeaccount/blob/master/app/src/main/res/xml/prefs.xml">prefs.xml</a></p>
 
 <p><code class="highlighter-rouge">CAUTION</code> - Make sure that the accountType attribute value in authenticator.xml matches the string in ACCOUNT_TYPE.</p>
 
 <p><strong>Step 7: Check for token in MainActivity on launch</strong></p>
 
-<p>This is where the fun begins. Now you will need an instance of AccountManager here. So create one (mAccountManager). Create a method checkAccountExists and pass authtoken to it.</p>
+<p>This is where the fun begins. Now you will need an instance of AccountManager here. So create one (mAccountManager). Create a method checkAccountExists and pass authTokenType (this is the token type defined under AccountInfo) to it.</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">checkAccount</span><span class="p">(</span><span class="kd">final</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">)</span> <span class="o">{</span>
         <span class="kd">final</span> <span class="n">Account</span> <span class="n">availableAccounts</span><span class="o">[]</span> <span class="o">=</span> <span class="n">mAccountManager</span><span class="o">.</span><span class="na">getAccountsByType</span><span class="o">(</span><span class="n">AccountInfo</span><span class="o">.</span><span class="na">ACCOUNT_TYPE</span><span class="o">);</span>
@@ -119,7 +119,7 @@ So let’s get going.</p>
 </code></pre>
 </div>
 
-<p>In this method we are asking the AccountManager is there is a token for this app already. If there no token in found, we will call addNewAccount, which directs the user to the login screen. We will talk about the getExistingAccountAuthToken method in step 10.</p>
+<p>In this method we are asking the AccountManager to return all the accounts matching this account type. If there are no accounts found, we will call addNewAccount, which directs the user to the login screen. We will talk about the getExistingAccountAuthToken method in step 10.</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">addNewAccount</span><span class="p">(</span><span class="n">String</span> <span class="n">accountType</span><span class="o">,</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">)</span> <span class="o">{</span>
         <span class="kd">final</span> <span class="n">AccountManagerFuture</span><span class="o">&lt;</span><span class="n">Bundle</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">mAccountManager</span><span class="o">.</span><span class="na">addAccount</span><span class="o">(</span><span class="n">accountType</span><span class="o">,</span> <span class="n">authTokenType</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="k">new</span> <span class="n">AccountManagerCallback</span><span class="o">&lt;</span><span class="n">Bundle</span><span class="o">&gt;()</span> <span class="o">{</span>
@@ -136,11 +136,11 @@ So let’s get going.</p>
 </code></pre>
 </div>
 
-<p>This is where we need to implement the addAccount method of AbstractAccountAuthenticator, to redirect the user to the login screen.</p>
+<p>The addNewAccount basically calls addAccount which needs to be implemented in AccountAuthenticator.</p>
 
 <p><strong>Step 8: Implement addAccount method of AbstractAccountAuthenticator</strong></p>
 
-<p>The following method calls the LoginActivity and returns a bundle to the previous method that tells if the account was added successfully.</p>
+<p>The following method calls the LoginActivity:</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
     <span class="kd">public</span> <span class="n">Bundle</span> <span class="n">addAccount</span><span class="o">(</span><span class="n">AccountAuthenticatorResponse</span> <span class="n">response</span><span class="o">,</span> <span class="n">String</span> <span class="n">accountType</span><span class="o">,</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">requiredFeatures</span><span class="o">,</span> <span class="n">Bundle</span> <span class="n">options</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">NetworkErrorException</span> <span class="o">{</span>
@@ -195,7 +195,7 @@ So let’s get going.</p>
 
 <p><strong>Step 10: Get auth token for existing account</strong></p>
 
-<p>Addressing step 7 here. When the user launches the app again, getExistingAccountAuthToken will be called returning info. regarding the account. You can get the username, auth token and any other info. that you store during account creation form here.</p>
+<p>Addressing step 7 here. When the user launches the app again, getExistingAccountAuthToken will be called returning information regarding the account. You can get the username, auth token and any other information that you store during account creation from here.</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">getExistingAccountAuthToken</span><span class="p">(</span><span class="n">Account</span> <span class="n">account</span><span class="o">,</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">)</span> <span class="o">{</span>
         <span class="kd">final</span> <span class="n">AccountManagerFuture</span><span class="o">&lt;</span><span class="n">Bundle</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">mAccountManager</span><span class="o">.</span><span class="na">getAuthToken</span><span class="o">(</span><span class="n">account</span><span class="o">,</span> <span class="n">authTokenType</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
@@ -222,7 +222,7 @@ So let’s get going.</p>
 
 <p><a href="https://github.com/sastagi/primeaccount">https://github.com/sastagi/primeaccount</a></p>
 
-<p>The account authenticator is way more powerful than what I have mentioned here. There are a bunch of other interesting feature that you can use creatively. Some other interesting blogs on Account authenticator:</p>
+<p>The account authenticator has many more features than mentioned here. They cover most of the edge cases that you are bound to encounter as you app becomes popular. Some other interesting blogs on Account authenticator:</p>
 
 <ul>
   <li>
