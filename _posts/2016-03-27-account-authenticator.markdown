@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Account authenticator tutorial"
-date:   2014-03-27 12:00:00
+date:   2016-03-27 12:00:00
 categories: Android
 permalink: /archivers/accountauthenticator
 comments: True
