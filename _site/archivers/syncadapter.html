@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Sync Adapter « PrimeDroid</title>
+  <meta name="description" content="Without doubt, your app will communicate with the server and fetch some data for the the users to view, unless you have some extraordinary idea that is self ...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://primedroid.github.io/archivers/syncadapter">
+  <link rel="alternate" type="application/rss+xml" title="PrimeDroid" href="http://primedroid.github.io/feed.xml" />
+</head>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-75641789-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+  <body>
+
+    <header class="header">
+  <div class="wrapper">
+    <a class="site-title" href="/">PrimeDroid</a>
+    <nav class="site-nav">
+      
+        
+      
+        
+        <a class="page-link" href="/about/">About</a>
+        
+      
+        
+        <a class="page-link" href="/category/">Category</a>
+        
+      
+        
+      
+        
+      
+        
+      
+    </nav>
+  </div>
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="col-main">
+          <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Sync Adapter</h1>
+    <p class="post-meta">Apr 4, 2016</p>
+  </header>
+
+  <article class="post-content">
+    <p>Without doubt, your app will communicate with the server and fetch some data for the the users to view, unless you have some extraordinary idea that is self sufficient within the app. Most likely, you will end up making frequent server calls to sync data. Here is where you will find the Sync adapter useful. For the 
+Sync adapter you need an Account authenticator, which I have explained in my previous blog post. If you have not implemented an account authenticator, please do so. For someday when you end up sitting across Larry or Mark from you know where, you will thank me silently for the extra couple of billions that feature adds
+to your deal. I take 100% commission in the form of retweets and likes.</p>
+
+<p>However, if you do not deal with user accounts and still want to use the Sync adapter, this post will show you how to create one. I will assume you have not 
+incorporated an account authenticator. So, I will show the stub implementations</p>
+
+<p><strong>Why implement a Sync Adapter</strong></p>
+
+<p>Well there are many ways to sync data with server calls, but when you have a tool called Sync adapter, that should be sufficient enough for you to use it ;-). Well if not, then consider this, Sync adapter usage is encouraged by Google, because it provides substantial savings in battery power. This is accomplished
+by clubbing together many server calls. Whenever you make a server call, the device needs to wake up the radio (if not already awake). This causes some battery strain. The Sync adapter tries to reduce the battery strain by having the sync call performed at a time that is beneficial for most of the apps, so that radio is
+not switched on and off again and for different calls from different apps. One call to rule them all. So let’s get started. Create a android application with a MainActivity.java.</p>
+
+<p><strong>Step 1: Create a stub Account authenticator, authenticator service</strong></p>
+
+<p>This is what the previous tutorial was all about. If you followed that skip this step. Else, create the following two files:</p>
+
+<ul>
+  <li><a href="https://github.com/sastagi/primesyncdemo/blob/master/app/src/main/java/com/primedroid/primesyncdemo/Authenticator.java">Authenticator.java</a></li>
+  <li><a href="https://github.com/sastagi/primesyncdemo/blob/master/app/src/main/java/com/primedroid/primesyncdemo/AuthenticatorService.java">AuthenticatorService.java</a></li>
+</ul>
+
+<p>Create the corresponding XML files and prefs files. Don’t forget to add this info. in the manifest</p>
+
+<p><strong>Step 2: Create a stub ContentProvider</strong></p>
+
+<p>Now, for the sync adapter to run, you will need a content provider. That is a big topic in itself, so go ahead and create one, I will wait for you…still waiting. Naah, just kidding, you can create a stub provider too:</p>
+
+<ul>
+  <li><a href="https://github.com/sastagi/primesyncdemo/blob/master/app/src/main/java/com/primedroid/primesyncdemo/StubProvider.java">StubProvider.java</a></li>
+</ul>
+
+<p>Make sure to add this to the manifest</p>
+
+<p><strong>Step 3: Create a Sync Adapter</strong></p>
+
+<p>This is the end of stubby stuff. This is where we create SyncAdapter.java. The main sync operation happens from onPerformSync which will be called from the MainActivity.java</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onPerformSync</span><span class="p">(</span>
+            <span class="n">Account</span> <span class="n">account</span><span class="o">,</span>
+            <span class="n">Bundle</span> <span class="n">extras</span><span class="o">,</span>
+            <span class="n">String</span> <span class="n">authority</span><span class="o">,</span>
+            <span class="n">ContentProviderClient</span> <span class="n">provider</span><span class="o">,</span>
+            <span class="n">SyncResult</span> <span class="n">syncResult</span><span class="o">)</span> <span class="o">{</span>
+    <span class="cm">/*
+     * Put the data transfer code here.
+     */</span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+<p>This is where you will perform the network operations, database calls. This happens on a separate thread, so you will not be blocking the UI thread. The following is a link to the file:</p>
+
+<ul>
+  <li><a href="https://github.com/sastagi/primesyncdemo/blob/master/app/src/main/java/com/primedroid/primesyncdemo/SyncAdapter.java">SyncAdapter.java</a></li>
+</ul>
+
+<p><strong>Step 4: Create the Sync service to call the Sync Adapter</strong></p>
+
+<p>The sync service is a service that will be running the sync adapter for you:</p>
+
+<ul>
+  <li><a href="https://github.com/sastagi/primesyncdemo/blob/master/app/src/main/java/com/primedroid/primesyncdemo/SyncService.java">SyncService.java</a></li>
+</ul>
+
+<p>Make sure to add this to the manifest.</p>
+
+<p><strong>Step 5: Call Sync Adapter from main</strong></p>
+
+<p>First of write a method to create your account in the Sync adapter.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="n">Account</span> <span class="nf">CreateSyncAccount</span><span class="p">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Account</span> <span class="n">newAccount</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Account</span><span class="o">(</span>
+                <span class="n">ACCOUNT</span><span class="o">,</span> <span class="n">ACCOUNT_TYPE</span><span class="o">);</span>
+        <span class="n">AccountManager</span> <span class="n">accountManager</span> <span class="o">=</span>
+                <span class="o">(</span><span class="n">AccountManager</span><span class="o">)</span> <span class="n">context</span><span class="o">.</span><span class="na">getSystemService</span><span class="o">(</span>
+                        <span class="n">ACCOUNT_SERVICE</span><span class="o">);</span>
+        <span class="cm">/*
+         * Add the account and account type, no password or user data
+         * If successful, return the Account object, otherwise report an error.
+         */</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">accountManager</span><span class="o">.</span><span class="na">addAccountExplicitly</span><span class="o">(</span><span class="n">newAccount</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">))</span> <span class="o">{</span>
+            <span class="cm">/*
+             * If you don't set android:syncable="true" in
+             * in your &lt;provider&gt; element in the manifest,
+             * then call context.setIsSyncable(account, AUTHORITY, 1)
+             * here.
+             */</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="cm">/*
+             * The account exists or some other error occurred. Log this, report it,
+             * or handle it internally.
+             */</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">newAccount</span><span class="o">;</span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Almost there. Now create the account and content resolver in onCreate and call the syncadapter as follows:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>	<span class="n">mAccount</span> <span class="o">=</span> <span class="n">CreateSyncAccount</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+
+        <span class="n">mResolver</span> <span class="o">=</span> <span class="n">getContentResolver</span><span class="o">();</span>
+        
+        <span class="n">Bundle</span> <span class="n">syncSettingsBundle</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Bundle</span><span class="o">();</span>
+        <span class="n">syncSettingsBundle</span><span class="o">.</span><span class="na">putBoolean</span><span class="o">(</span><span class="n">ContentResolver</span><span class="o">.</span><span class="na">SYNC_EXTRAS_MANUAL</span><span class="o">,</span>
+                <span class="kc">true</span><span class="o">);</span>
+        <span class="n">syncSettingsBundle</span><span class="o">.</span><span class="na">putBoolean</span><span class="o">(</span><span class="n">ContentResolver</span><span class="o">.</span><span class="na">SYNC_EXTRAS_EXPEDITED</span><span class="o">,</span>
+                <span class="kc">true</span><span class="o">);</span>
+        <span class="n">ContentResolver</span><span class="o">.</span><span class="na">requestSync</span><span class="o">(</span><span class="n">mAccount</span><span class="o">,</span> <span class="n">AUTHORITY</span><span class="o">,</span> <span class="n">syncSettingsBundle</span><span class="o">);</span>
+
+        <span class="n">ContentResolver</span><span class="o">.</span><span class="na">setSyncAutomatically</span><span class="o">(</span><span class="n">mAccount</span><span class="o">,</span> <span class="n">AUTHORITY</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+        <span class="n">ContentResolver</span><span class="o">.</span><span class="na">addPeriodicSync</span><span class="o">(</span>
+                <span class="n">mAccount</span><span class="o">,</span>
+                <span class="n">AUTHORITY</span><span class="o">,</span>
+                <span class="n">Bundle</span><span class="o">.</span><span class="na">EMPTY</span><span class="o">,</span>
+                <span class="mi">60L</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<p>Yes, you are done. That’s it. Five steps and you have implemented your sync adapter. Feel free to download the sample app from:</p>
+
+<p><a href="https://github.com/sastagi/primesyncdemo">https://github.com/sastagi/primesyncdemo</a></p>
+
+<p>The following are good links to learn more about sync adapter.</p>
+
+<ul>
+  <li>
+    <p><a href="http://developer.android.com/training/sync-adapters/index.html">http://developer.android.com/training/sync-adapters/index.html</a></p>
+  </li>
+  <li>
+    <p><a href="http://blog.udinic.com/2013/07/24/write-your-own-android-sync-adapter/">http://blog.udinic.com/2013/07/24/write-your-own-android-sync-adapter/</a></p>
+  </li>
+</ul>
+
+
+  </article>
+  
+  
+
+</div>
+
+          
+          
+
+<!-- Add Disqus comments. -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+  var disqus_shortname = 'primedroidgithubio'; // required: replace example with your forum shortname
+  var disqus_identifier = "/archivers/syncadapter";
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+        </div>
+        <div class="col-second">
+          <div class="col-box col-box-author">
+  <img class="avatar" src="https://en.gravatar.com/userimage/101856459/0eaa047c331fd9937f46061531642999.png?size=200" alt="Santosh Astagi">
+  <div class="col-box-title name">Santosh Astagi</div>
+  <p>Android developer.</p>
+  <p class="contact">
+    
+    <a href="https://github.com/sastagi">GitHub</a>
+    
+    
+    <a href="https://twitter.com/sastagi">Twitter</a>
+    
+    
+    <a href="mailto:sastagi@gmail.com">Email</a>
+    
+  </p>
+</div>
+
+<div class="col-box">
+  <div class="col-box-title">Newest Posts</div>
+  <ul class="post-list">
+    
+      <li><a class="post-link" href="/archivers/syncadapter">Sync Adapter</a></li>
+    
+      <li><a class="post-link" href="/archivers/accountauthenticator">Account authenticator</a></li>
+    
+      <li><a class="post-link" href="/archivers/introduction">Introduction</a></li>
+    
+  </ul>
+</div>
+
+<div class="col-box post-toc hide">
+  <div class="col-box-title">TOC</div>
+</div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+<div class="wrapper">
+&copy; 2016 Santosh Astagi
+</div>
+</footer>
+
+<script src="/js/easybook.js"></script>
+
+  </body>
+
+</html>
