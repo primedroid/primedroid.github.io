@@ -24,6 +24,7 @@ permalink: /archivers/:title
 gems:
  - jekyll-paginate
  - jekyll-gist
+ - jekyll-assets
  - jemoji
 
 # Build settings

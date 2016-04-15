@@ -6,9 +6,114 @@
 </description>
     <link>http://primedroid.github.io/</link>
     <atom:link href="http://primedroid.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 04 Apr 2016 11:35:22 -0700</pubDate>
-    <lastBuildDate>Mon, 04 Apr 2016 11:35:22 -0700</lastBuildDate>
+    <pubDate>Fri, 15 Apr 2016 13:06:08 +0530</pubDate>
+    <lastBuildDate>Fri, 15 Apr 2016 13:06:08 +0530</lastBuildDate>
     <generator>Jekyll v3.1.2</generator>
+    
+      <item>
+        <title>Handler Thread</title>
+        <description>&lt;p&gt;If you have been an Android developer for sometime, no doubt you follow the gospel - move heavy duty processing stuff to a non-ui thread. This is because if you do heavy operations such as networking, image manipulation, the UI will be frozen, possibly leading to an ANR message…argggh.
+You will need to perform the heavy operations on some other thread and then communicate the result to the UI thread.&lt;/p&gt;
+
+&lt;p&gt;However, if you do not deal with user accounts and still want to use the Sync adapter, this post will show you how to create one. I will assume you have not 
+incorporated an account authenticator. So, I will show the stub implementations&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Background processing options&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The android performance videos mention the following four options for performing background operations:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Async Task&lt;/strong&gt; - Most famous and used by the majority. However it has it’s limitations, you cannot reuse it. need to create a new one. Good for one off operations.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;HandlerThread&lt;/strong&gt; - Least used, but the topic of today’s blog post. Many moving parts, but excellent choice to run repeated actions.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;ThreadPoolExecutor&lt;/strong&gt; - Plain old java, non android artifact. Best for performing a giant operation split into many multiple mini operations.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Service&lt;/strong&gt; - Probably the second most famous background processing artifact. Main differentiator is that it could allow you to run a background operation even if the app is killed.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;With that behind us or above us. let us move on to learning HandlerThread.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Looper, Handler and Message Queue&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;To explain HandlerThread, I will give a rudimentary idea about a few different concepts:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Handler&lt;/strong&gt; - The handler object actually puts the message, runnable in the message queue.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Message Queue&lt;/strong&gt; - A simple queue that holds message, runnables. These message,runnables are sent by the handler.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Looper&lt;/strong&gt; - The looper loops through the message queue and processes the messages, runnables on the respective handler thread. How does it know which thread to process on - each message, runnable on generation is associated with a handler and it is this handler that puts the runnable in the message queue.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So the following block diagram explains how all these three elements work together.  Going from left to right, the handler puts the messages, runnables in the message queue&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/handler.png&quot; alt=&quot;Making of a HandlerThread&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Create a HandlerThread&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;First, you will create the class that extends the HandlerThread:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyWorkerThread&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HandlerThread&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Handler&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mWorkerHandler&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+        &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MyWorkerThread&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;){&lt;/span&gt;
+            &lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+        &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;postTask&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Runnable&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;){&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;mWorkerHandler&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+        &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;prepareHandler&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;mWorkerHandler&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Handler&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getLooper&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;HandlerThread in action&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Now, imagine you have a runnable called task. Inorder to run it on the HandlerThread, create an instance of the HandlerThread first, start it like any normal thread and prepare it to so it gets a handle of the looper:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;mWorkerThread&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MyWorkerThread&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;workerThread&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;mWorkerThread&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;mWorkerThread&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;prepareHandler&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Now to run the task runnable on the HandlerThread, post it on the HandlerThread instance as follows:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;mWorkerThread&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;postTask&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;theTask&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;    
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;You can communicate back information from the HandlerThread to the main UI thread by using the runOnUiThread method.&lt;/p&gt;
+
+&lt;p&gt;The following is a good blog explaining in handlers in more detail:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://blog.nikitaog.me/2014/10/11/android-looper-handler-handlerthread-i/&quot;&gt;https://blog.nikitaog.me/2014/10/11/android-looper-handler-handlerthread-i/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Thu, 14 Apr 2016 17:30:00 +0530</pubDate>
+        <link>http://primedroid.github.io/archivers/handlerthread</link>
+        <guid isPermaLink="true">http://primedroid.github.io/archivers/handlerthread</guid>
+        
+        
+        <category>Android</category>
+        
+      </item>
     
       <item>
         <title>Sync Adapter</title>
@@ -148,7 +253,7 @@ not switched on and off again and for different calls from different apps. One c
 &lt;/ul&gt;
 
 </description>
-        <pubDate>Mon, 04 Apr 2016 05:00:00 -0700</pubDate>
+        <pubDate>Mon, 04 Apr 2016 17:30:00 +0530</pubDate>
         <link>http://primedroid.github.io/archivers/syncadapter</link>
         <guid isPermaLink="true">http://primedroid.github.io/archivers/syncadapter</guid>
         
@@ -335,7 +440,7 @@ So let’s get going.&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 </description>
-        <pubDate>Sun, 27 Mar 2016 05:00:00 -0700</pubDate>
+        <pubDate>Sun, 27 Mar 2016 17:30:00 +0530</pubDate>
         <link>http://primedroid.github.io/archivers/accountauthenticator</link>
         <guid isPermaLink="true">http://primedroid.github.io/archivers/accountauthenticator</guid>
         
@@ -349,7 +454,7 @@ So let’s get going.&lt;/p&gt;
         <description>&lt;p&gt;Hello all. I have been thinking about doing this for quite sometime, and finally the time has come. Took me a full weekend to get this setup, but hopefully I can make this a good blog stop for android developers. More than that, I want this to be record of my android research which I may find useful someday.&lt;/p&gt;
 
 </description>
-        <pubDate>Tue, 15 Mar 2016 05:00:00 -0700</pubDate>
+        <pubDate>Tue, 15 Mar 2016 17:30:00 +0530</pubDate>
         <link>http://primedroid.github.io/archivers/introduction</link>
         <guid isPermaLink="true">http://primedroid.github.io/archivers/introduction</guid>
         
