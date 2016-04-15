@@ -10,9 +10,6 @@ comments: True
 If you have been an Android developer for sometime, no doubt you follow the gospel - move heavy duty processing stuff to a non-ui thread. This is because if you do heavy operations such as networking, image manipulation, the UI will be frozen, possibly leading to an ANR message...argggh.
 You will need to perform the heavy operations on some other thread and then communicate the result to the UI thread.
 
-However, if you do not deal with user accounts and still want to use the Sync adapter, this post will show you how to create one. I will assume you have not 
-incorporated an account authenticator. So, I will show the stub implementations
-
 **Background processing options**
 
 The android performance videos mention the following four options for performing background operations:
