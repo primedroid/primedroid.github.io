@@ -14,7 +14,7 @@ You will need to perform the heavy operations on some other thread and then comm
 
 The android performance videos mention the following four options for performing background operations:
 
-1. **Async Task** - Most famous and used by the majority. However it has it's limitations, you cannot reuse it. need to create a new one. Good for one off operations.
+1. **Async Task** - Most famous and used by the majority. However it has it's limitations, you cannot reuse it. Need to create a new one. Good for one off operations.
 
 2. **HandlerThread** - Least used, but the topic of today's blog post. Many moving parts, but excellent choice to run repeated actions.
 
@@ -22,19 +22,19 @@ The android performance videos mention the following four options for performing
 
 4. **Service** - Probably the second most famous background processing artifact. Main differentiator is that it could allow you to run a background operation even if the app is killed.
 
-With that behind us or above us. let us move on to learning HandlerThread.
+With that behind us or above us, let us move on to learning HandlerThread.
 
 **Looper, Handler and Message Queue**
 
-To explain HandlerThread, I will give a rudimentary idea about a few different concepts:
+To explain [HandlerThread](http://developer.android.com/reference/android/os/HandlerThread.html), I will give a rudimentary idea about a few different concepts:
 
 *  **Handler** - The handler object actually puts the message, runnable in the message queue.
 
-*  **Message Queue** - A simple queue that holds message, runnables. These message,runnables are sent by the handler.
+*  **Message Queue** - A simple queue that holds message, runnables. These message, runnables are sent by the handler.
 
 *  **Looper** - The looper loops through the message queue and processes the messages, runnables on the respective handler thread. How does it know which thread to process on - each message, runnable on generation is associated with a handler and it is this handler that puts the runnable in the message queue.
 
-So the following block diagram explains how all these three elements work together.  Going from left to right, the handler puts the messages, runnables in the message queue
+So the following block diagram explains how all these three elements work together.  Going from left to right, the handler puts the messages, runnables in the message queue and the looper pulls the oldest ones for execution on the respective HandlerThread.
 
 ![Making of a HandlerThread](/images/handler.png)
 
@@ -78,7 +78,7 @@ mWorkerThread.postTask(theTask());
 
 You can communicate back information from the HandlerThread to the main UI thread by using the runOnUiThread method.
 
-The following is a good blog explaining in handlers in more detail:
+The following is a good blog explaining handlers in more detail:
 
 * [https://blog.nikitaog.me/2014/10/11/android-looper-handler-handlerthread-i/](https://blog.nikitaog.me/2014/10/11/android-looper-handler-handlerthread-i/)
 
