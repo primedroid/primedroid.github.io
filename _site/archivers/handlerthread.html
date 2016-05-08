@@ -6,8 +6,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Handler Thread « PrimeDroid</title>
-  <meta name="description" content="If you have been an Android developer for sometime, no doubt you follow the gospel - move heavy duty processing stuff to a non-ui thread. This is because if ...">
+  <title>Dagger « PrimeDroid</title>
+  <meta name="description" content="Dagger is a very popular dependency injection library created by the team at Square. Although Jake Wharton is associated with it, he has mentioned in his tal...">
 
   <link rel="stylesheet" href="/css/main.css">
   <link rel="canonical" href="http://primedroid.github.io/archivers/handlerthread">
@@ -58,102 +58,218 @@
           <div class="post">
 
   <header class="post-header">
-    <h1 class="post-title">Handler Thread</h1>
-    <p class="post-meta">Apr 14, 2016</p>
+    <h1 class="post-title">Dagger</h1>
+    <p class="post-meta">Apr 29, 2016</p>
   </header>
 
   <article class="post-content">
-    <p>If you have been an Android developer for sometime, no doubt you follow the gospel - move heavy duty processing stuff to a non-ui thread. This is because if you do heavy operations such as networking, image manipulation, the UI will be frozen, possibly leading to an ANR message…argggh.
-You will need to perform the heavy operations on some other thread and then communicate the result to the UI thread.</p>
+    <p>Dagger is a very popular dependency injection library created by the team at Square. Although Jake Wharton is associated with it, he has mentioned in his talks that the idea and initial development for Dagger was done by Jesse Wilson and Bob Lee (these two were also
+involved in the development of the another popular D.I.  library - Guice at Google). Dagger uses a Directed Acyclic Graph(DAG) to map the different creational classes and hence the name DAGger. The folks at Google advocate against the use of DI frameworks on account of
+these frameworks using reflection and give example of Guice. However, Dagger was designed to avoid this issue and does not use reflection at all and instead uses static dependency to build the ObjectGraph. To be honest, I don’t know understand everything of what I have 
+written in the last two sentences, but it just sounded so cool and so trustworthy that I felt inclined to use it. Once I started using it, I realized the awesome power especially as my app grew. We will be using Dagger 2 for this tutorial.</p>
 
-<p>However, if you do not deal with user accounts and still want to use the Sync adapter, this post will show you how to create one. I will assume you have not 
-incorporated an account authenticator. So, I will show the stub implementations</p>
+<p><strong>Step 1: Dagger setup with Ggradle files</strong></p>
 
-<p><strong>Background processing options</strong></p>
+<p>Modify the build.gradle file for your project to include the neenbedankt plugin:</p>
 
-<p>The android performance videos mention the following four options for performing background operations:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">buildscript</span> <span class="p">{</span>
+    <span class="nx">repositories</span> <span class="p">{</span>
+        <span class="nx">jcenter</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="nx">dependencies</span> <span class="p">{</span>
+        <span class="nx">classpath</span> <span class="s1">'com.android.tools.build:gradle:1.2.3'</span>
+        <span class="nx">classpath</span> <span class="s1">'com.neenbedankt.gradle.plugins:android-apt:1.8'</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 
-<ol>
-  <li>
-    <p><strong>Async Task</strong> - Most famous and used by the majority. However it has it’s limitations, you cannot reuse it. need to create a new one. Good for one off operations.</p>
-  </li>
-  <li>
-    <p><strong>HandlerThread</strong> - Least used, but the topic of today’s blog post. Many moving parts, but excellent choice to run repeated actions.</p>
-  </li>
-  <li>
-    <p><strong>ThreadPoolExecutor</strong> - Plain old java, non android artifact. Best for performing a giant operation split into many multiple mini operations.</p>
-  </li>
-  <li>
-    <p><strong>Service</strong> - Probably the second most famous background processing artifact. Main differentiator is that it could allow you to run a background operation even if the app is killed.</p>
-  </li>
-</ol>
+<span class="nx">allprojects</span> <span class="p">{</span>
+    <span class="nx">repositories</span> <span class="p">{</span>
+        <span class="nx">jcenter</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>Modify the module gradle file to include dagger and provide the jsr annotation (make sure to include the neenbedankt info. at the top of this file):</p>
 
-<p>With that behind us or above us. let us move on to learning HandlerThread.</p>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">apply</span> <span class="nx">plugin</span><span class="err">:</span> <span class="s1">'com.android.application'</span>
+<span class="nx">apply</span> <span class="nx">plugin</span><span class="err">:</span> <span class="s1">'com.neenbedankt.android-apt'</span>
 
-<p><strong>Looper, Handler and Message Queue</strong></p>
+<span class="nx">android</span> <span class="p">{</span>
+    <span class="nx">compileSdkVersion</span> <span class="mi">23</span>
+    <span class="nx">buildToolsVersion</span> <span class="s2">"23.0.2"</span>
 
-<p>To explain HandlerThread, I will give a rudimentary idea about a few different concepts:</p>
+    <span class="nx">defaultConfig</span> <span class="p">{</span>
+        <span class="nx">applicationId</span> <span class="s2">"com.primedroid.primedagger"</span>
+        <span class="nx">minSdkVersion</span> <span class="mi">15</span>
+        <span class="nx">targetSdkVersion</span> <span class="mi">23</span>
+        <span class="nx">versionCode</span> <span class="mi">1</span>
+        <span class="nx">versionName</span> <span class="s2">"1.0"</span>
+    <span class="p">}</span>
+    <span class="nx">buildTypes</span> <span class="p">{</span>
+        <span class="nx">release</span> <span class="p">{</span>
+            <span class="nx">minifyEnabled</span> <span class="kc">false</span>
+            <span class="nx">proguardFiles</span> <span class="nx">getDefaultProguardFile</span><span class="p">(</span><span class="s1">'proguard-android.txt'</span><span class="p">),</span> <span class="s1">'proguard-rules.pro'</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 
-<ul>
-  <li>
-    <p><strong>Handler</strong> - The handler object actually puts the message, runnable in the message queue.</p>
-  </li>
-  <li>
-    <p><strong>Message Queue</strong> - A simple queue that holds message, runnables. These message,runnables are sent by the handler.</p>
-  </li>
-  <li>
-    <p><strong>Looper</strong> - The looper loops through the message queue and processes the messages, runnables on the respective handler thread. How does it know which thread to process on - each message, runnable on generation is associated with a handler and it is this handler that puts the runnable in the message queue.</p>
-  </li>
-</ul>
+<span class="nx">dependencies</span> <span class="p">{</span>
+    <span class="nx">compile</span> <span class="nx">fileTree</span><span class="p">(</span><span class="nx">dir</span><span class="err">:</span> <span class="s1">'libs'</span><span class="p">,</span> <span class="nx">include</span><span class="err">:</span> <span class="p">[</span><span class="s1">'*.jar'</span><span class="p">])</span>
+    <span class="nx">compile</span> <span class="s1">'com.android.support:appcompat-v7:24.0.0-alpha1'</span>
 
-<p>So the following block diagram explains how all these three elements work together.  Going from left to right, the handler puts the messages, runnables in the message queue</p>
+    <span class="nx">apt</span> <span class="s1">'com.google.dagger:dagger-compiler:2.2'</span>
+    <span class="nx">compile</span> <span class="s1">'com.google.dagger:dagger:2.2'</span>
+    <span class="nx">provided</span> <span class="s1">'javax.annotation:jsr250-api:1.0'</span>
+<span class="p">}</span>
+</code></pre>
+</div>
 
-<p><img src="/images/handler.png" alt="Making of a HandlerThread" /></p>
+<p><strong>Step 2: Fruit class</strong></p>
 
-<p><strong>Create a HandlerThread</strong></p>
+<p>In this project we will be creating a Fruit class, which we will be injecting in the MainActivity.class. The class will look as follows:</p>
 
-<p>First, you will create the class that extends the HandlerThread:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Fruit</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">color</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">weight</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="n">Fruit</span> <span class="n">fruit</span><span class="o">;</span>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">class</span> <span class="nc">MyWorkerThread</span> <span class="kd">extends</span> <span class="n">HandlerThread</span> <span class="o">{</span>
-        <span class="kd">private</span> <span class="n">Handler</span> <span class="n">mWorkerHandler</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">Fruit</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">color</span><span class="o">,</span> <span class="kt">int</span> <span class="n">weight</span><span class="o">){</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">color</span> <span class="o">=</span> <span class="n">color</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">weight</span> <span class="o">=</span> <span class="n">weight</span><span class="o">;</span>
 
-        <span class="kd">public</span> <span class="n">MyWorkerThread</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">){</span>
-            <span class="kd">super</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="n">toString</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">fruit</span><span class="o">.</span><span class="na">name</span><span class="o">+</span><span class="s">" "</span><span class="o">+</span><span class="n">fruit</span><span class="o">.</span><span class="na">color</span><span class="o">+</span><span class="s">" "</span><span class="o">+</span><span class="n">fruit</span><span class="o">.</span><span class="na">weight</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Fruit</span> <span class="n">getFruit</span><span class="o">(){</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">fruit</span><span class="o">!=</span><span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">fruit</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">fruit</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Fruit</span><span class="o">(</span><span class="s">"Apple"</span><span class="o">,</span> <span class="s">"red"</span><span class="o">,</span> <span class="mi">10</span><span class="o">);</span>
+            <span class="k">return</span> <span class="n">fruit</span><span class="o">;</span>
         <span class="o">}</span>
+    <span class="o">}</span>
 
-        <span class="kd">public</span> <span class="kt">void</span> <span class="n">postTask</span><span class="o">(</span><span class="n">Runnable</span> <span class="n">task</span><span class="o">){</span>
-            <span class="n">mWorkerHandler</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="n">task</span><span class="o">);</span>
-        <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
 
-        <span class="kd">public</span> <span class="kt">void</span> <span class="n">prepareHandler</span><span class="o">(){</span>
-            <span class="n">mWorkerHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">(</span><span class="n">getLooper</span><span class="o">());</span>
-        <span class="o">}</span>
+<p><strong>Step 3: App module</strong></p>
+
+<p>Dagger is all about modules. You will need an App module to start with and then a MyApp module for your object. We will do the MyApp module after the object class creation. Here is the app module:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nd">@Module</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AppModule</span> <span class="o">{</span>
+    <span class="n">Application</span> <span class="n">mApplication</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="n">AppModule</span><span class="o">(</span><span class="n">Application</span> <span class="n">application</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">mApplication</span> <span class="o">=</span> <span class="n">application</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Provides</span>
+    <span class="nd">@Singleton</span>
+    <span class="n">Application</span> <span class="n">providesApplication</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">mApplication</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p><strong>Step 4: Fruit module and component</strong></p>
+
+<p>Fruit module is the engine through which Dagger will get a Fruit object:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nd">@Module</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">FruitModule</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">fruitName</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="n">FruitModule</span><span class="o">(</span><span class="n">String</span> <span class="n">fruitName</span><span class="o">){</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">fruitName</span> <span class="o">=</span> <span class="n">fruitName</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Provides</span>
+    <span class="nd">@Singleton</span>
+        <span class="c1">// Application reference must come from AppModule.class</span>
+    <span class="n">Fruit</span> <span class="n">providesFruit</span><span class="o">(</span><span class="n">Application</span> <span class="n">application</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">Fruit</span><span class="o">.</span><span class="na">getFruit</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Fruit component is the interface used to inject the Fruit object inside the MainActivity.class:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nd">@Singleton</span>
+<span class="nd">@Component</span><span class="o">(</span><span class="n">modules</span><span class="o">={</span><span class="n">AppModule</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">FruitModule</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">FruitComponent</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="n">inject</span><span class="o">(</span><span class="n">MainActivity</span> <span class="n">activity</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p><strong>Step 5: MyApp module</strong></p>
+
+<p>The MyApp module is the last piece in the puzzle:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyApp</span> <span class="kd">extends</span> <span class="n">Application</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">FruitComponent</span> <span class="n">mFruitComponent</span><span class="o">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">onCreate</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">();</span>
+        <span class="n">mFruitComponent</span> <span class="o">=</span> <span class="n">DaggerFruitComponent</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">appModule</span><span class="o">(</span><span class="k">new</span> <span class="n">AppModule</span><span class="o">(</span><span class="k">this</span><span class="o">))</span>
+                <span class="o">.</span><span class="na">fruitModule</span><span class="o">(</span><span class="k">new</span> <span class="n">FruitModule</span><span class="o">(</span><span class="s">"Apple"</span><span class="o">))</span>
+                <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">FruitComponent</span> <span class="n">getFruitComponent</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">mFruitComponent</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Don’t forget to specify this app in the manifest. For the application tag, add the name as .MyApp.</p>
+
+<p><strong>Step 6: Use Dagger to create the object</strong></p>
+
+<p>Now got to MainActivity.class and first inject mFruit and then create it use the MyApp application context:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainActivity</span> <span class="kd">extends</span> <span class="n">Activity</span> <span class="o">{</span>
+    <span class="nd">@Inject</span>
+    <span class="n">Fruit</span> <span class="n">mFruit</span><span class="o">;</span>
+    <span class="nd">@Inject</span>
+    <span class="n">SharedPreferences</span> <span class="n">sharedPreferences</span><span class="o">;</span>
+
+
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="n">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
+
+        <span class="o">((</span><span class="n">MyApp</span><span class="o">)</span> <span class="n">getApplication</span><span class="o">()).</span><span class="na">getFruitComponent</span><span class="o">().</span><span class="na">inject</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+        <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">"STRINGFRUITNAME"</span><span class="o">,</span> <span class="n">mFruit</span><span class="o">.</span><span class="na">toString</span><span class="o">()</span> <span class="o">);</span>
     <span class="o">}</span>
 </code></pre>
 </div>
 
-<p><strong>HandlerThread in action</strong></p>
-
-<p>Now, imagine you have a runnable called task. Inorder to run it on the HandlerThread, create an instance of the HandlerThread first, start it like any normal thread and prepare it to so it gets a handle of the looper:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">mWorkerThread</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyWorkerThread</span><span class="o">(</span><span class="s">"workerThread"</span><span class="o">);</span>
-<span class="n">mWorkerThread</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-<span class="n">mWorkerThread</span><span class="o">.</span><span class="na">prepareHandler</span><span class="o">();</span>
-</code></pre>
-</div>
-
-<p>Now to run the task runnable on the HandlerThread, post it on the HandlerThread instance as follows:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">mWorkerThread</span><span class="o">.</span><span class="na">postTask</span><span class="o">(</span><span class="n">theTask</span><span class="o">());</span>    
-</code></pre>
-</div>
-
-<p>You can communicate back information from the HandlerThread to the main UI thread by using the runOnUiThread method.</p>
-
-<p>The following is a good blog explaining in handlers in more detail:</p>
+<p>You can access the sample project at the following location:</p>
 
 <ul>
-  <li><a href="https://blog.nikitaog.me/2014/10/11/android-looper-handler-handlerthread-i/">https://blog.nikitaog.me/2014/10/11/android-looper-handler-handlerthread-i/</a></li>
+  <li><a href="https://github.com/sastagi/primedagger">https://github.com/sastagi/primedagger</a></li>
+</ul>
+
+<p>If you want to go in depth, take a look at the following take by the man himself:</p>
+
+<ul>
+  <li><a href="https://www.parleys.com/tutorial/architecting-android-applications-dagger">https://www.parleys.com/tutorial/architecting-android-applications-dagger</a></li>
 </ul>
 
 
@@ -205,6 +321,8 @@ incorporated an account authenticator. So, I will show the stub implementations<
 <div class="col-box">
   <div class="col-box-title">Newest Posts</div>
   <ul class="post-list">
+    
+      <li><a class="post-link" href="/archivers/handlerthread">Dagger</a></li>
     
       <li><a class="post-link" href="/archivers/handlerthread">Handler Thread</a></li>
     

@@ -6,17 +6,235 @@
 </description>
     <link>http://primedroid.github.io/</link>
     <atom:link href="http://primedroid.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 15 Apr 2016 13:06:08 +0530</pubDate>
-    <lastBuildDate>Fri, 15 Apr 2016 13:06:08 +0530</lastBuildDate>
+    <pubDate>Sun, 08 May 2016 01:54:41 -0700</pubDate>
+    <lastBuildDate>Sun, 08 May 2016 01:54:41 -0700</lastBuildDate>
     <generator>Jekyll v3.1.2</generator>
+    
+      <item>
+        <title>Dagger</title>
+        <description>&lt;p&gt;Dagger is a very popular dependency injection library created by the team at Square. Although Jake Wharton is associated with it, he has mentioned in his talks that the idea and initial development for Dagger was done by Jesse Wilson and Bob Lee (these two were also
+involved in the development of the another popular D.I.  library - Guice at Google). Dagger uses a Directed Acyclic Graph(DAG) to map the different creational classes and hence the name DAGger. The folks at Google advocate against the use of DI frameworks on account of
+these frameworks using reflection and give example of Guice. However, Dagger was designed to avoid this issue and does not use reflection at all and instead uses static dependency to build the ObjectGraph. To be honest, I don’t know understand everything of what I have 
+written in the last two sentences, but it just sounded so cool and so trustworthy that I felt inclined to use it. Once I started using it, I realized the awesome power especially as my app grew. We will be using Dagger 2 for this tutorial.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Step 1: Dagger setup with Ggradle files&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Modify the build.gradle file for your project to include the neenbedankt plugin:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;buildscript&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;repositories&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;jcenter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;dependencies&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;classpath&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;com.android.tools.build:gradle:1.2.3&#39;&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;classpath&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;com.neenbedankt.gradle.plugins:android-apt:1.8&#39;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;allprojects&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;repositories&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;jcenter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Modify the module gradle file to include dagger and provide the jsr annotation (make sure to include the neenbedankt info. at the top of this file):&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;apply&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;plugin&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;com.android.application&#39;&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;apply&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;plugin&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;com.neenbedankt.android-apt&#39;&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;android&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;compileSdkVersion&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;23&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;buildToolsVersion&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;23.0.2&quot;&lt;/span&gt;
+
+    &lt;span class=&quot;nx&quot;&gt;defaultConfig&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;applicationId&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;com.primedroid.primedagger&quot;&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;minSdkVersion&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;15&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;targetSdkVersion&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;23&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;versionCode&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;versionName&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;1.0&quot;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;buildTypes&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;release&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;nx&quot;&gt;minifyEnabled&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;
+            &lt;span class=&quot;nx&quot;&gt;proguardFiles&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;getDefaultProguardFile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;proguard-android.txt&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;proguard-rules.pro&#39;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;dependencies&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;compile&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;fileTree&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;dir&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;libs&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;include&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;*.jar&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;compile&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;com.android.support:appcompat-v7:24.0.0-alpha1&#39;&lt;/span&gt;
+
+    &lt;span class=&quot;nx&quot;&gt;apt&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;com.google.dagger:dagger-compiler:2.2&#39;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;compile&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;com.google.dagger:dagger:2.2&#39;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;provided&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;javax.annotation:jsr250-api:1.0&#39;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;Step 2: Fruit class&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;In this project we will be creating a Fruit class, which we will be injecting in the MainActivity.class. The class will look as follows:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Fruit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;weight&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Fruit&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Fruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;weight&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;){&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;color&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;weight&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;weight&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;weight&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Fruit&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getFruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;fruit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Fruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Apple&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;red&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;Step 3: App module&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Dagger is all about modules. You will need an App module to start with and then a MyApp module for your object. We will do the MyApp module after the object class creation. Here is the app module:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Module&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AppModule&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Application&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mApplication&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AppModule&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Application&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;application&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;mApplication&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;application&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Provides&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Singleton&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Application&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;providesApplication&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mApplication&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;Step 4: Fruit module and component&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Fruit module is the engine through which Dagger will get a Fruit object:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Module&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;FruitModule&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fruitName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FruitModule&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fruitName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;){&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;fruitName&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fruitName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Provides&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Singleton&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// Application reference must come from AppModule.class&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Fruit&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;providesFruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Application&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;application&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Fruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getFruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Fruit component is the interface used to inject the Fruit object inside the MainActivity.class:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Singleton&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Component&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;modules&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;={&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;AppModule&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FruitModule&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;})&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;FruitComponent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MainActivity&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;activity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;Step 5: MyApp module&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The MyApp module is the last piece in the puzzle:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyApp&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Application&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FruitComponent&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mFruitComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;mFruitComponent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DaggerFruitComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;builder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;appModule&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AppModule&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;fruitModule&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FruitModule&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Apple&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FruitComponent&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getFruitComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mFruitComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Don’t forget to specify this app in the manifest. For the application tag, add the name as .MyApp.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Step 6: Use Dagger to create the object&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Now got to MainActivity.class and first inject mFruit and then create it use the MyApp application context:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MainActivity&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Activity&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Inject&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Fruit&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mFruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Inject&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;SharedPreferences&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sharedPreferences&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Bundle&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;savedInstanceState&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;savedInstanceState&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;setContentView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;layout&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;activity_main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MyApp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getApplication&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getFruitComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;inject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;Log&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;STRINGFRUITNAME&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mFruit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;You can access the sample project at the following location:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/sastagi/primedagger&quot;&gt;https://github.com/sastagi/primedagger&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If you want to go in depth, take a look at the following take by the man himself:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.parleys.com/tutorial/architecting-android-applications-dagger&quot;&gt;https://www.parleys.com/tutorial/architecting-android-applications-dagger&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Fri, 29 Apr 2016 05:00:00 -0700</pubDate>
+        <link>http://primedroid.github.io/archivers/handlerthread</link>
+        <guid isPermaLink="true">http://primedroid.github.io/archivers/handlerthread</guid>
+        
+        
+        <category>Android</category>
+        
+      </item>
     
       <item>
         <title>Handler Thread</title>
         <description>&lt;p&gt;If you have been an Android developer for sometime, no doubt you follow the gospel - move heavy duty processing stuff to a non-ui thread. This is because if you do heavy operations such as networking, image manipulation, the UI will be frozen, possibly leading to an ANR message…argggh.
 You will need to perform the heavy operations on some other thread and then communicate the result to the UI thread.&lt;/p&gt;
-
-&lt;p&gt;However, if you do not deal with user accounts and still want to use the Sync adapter, this post will show you how to create one. I will assume you have not 
-incorporated an account authenticator. So, I will show the stub implementations&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Background processing options&lt;/strong&gt;&lt;/p&gt;
 
@@ -24,7 +242,7 @@ incorporated an account authenticator. So, I will show the stub implementations&
 
 &lt;ol&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;Async Task&lt;/strong&gt; - Most famous and used by the majority. However it has it’s limitations, you cannot reuse it. need to create a new one. Good for one off operations.&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Async Task&lt;/strong&gt; - Most famous and used by the majority. However it has it’s limitations, you cannot reuse it. Need to create a new one. Good for one off operations.&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;&lt;strong&gt;HandlerThread&lt;/strong&gt; - Least used, but the topic of today’s blog post. Many moving parts, but excellent choice to run repeated actions.&lt;/p&gt;
@@ -37,25 +255,25 @@ incorporated an account authenticator. So, I will show the stub implementations&
   &lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;With that behind us or above us. let us move on to learning HandlerThread.&lt;/p&gt;
+&lt;p&gt;With that behind us or above us, let us move on to learning HandlerThread.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Looper, Handler and Message Queue&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;To explain HandlerThread, I will give a rudimentary idea about a few different concepts:&lt;/p&gt;
+&lt;p&gt;To explain &lt;a href=&quot;http://developer.android.com/reference/android/os/HandlerThread.html&quot;&gt;HandlerThread&lt;/a&gt;, I will give a rudimentary idea about a few different concepts:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
     &lt;p&gt;&lt;strong&gt;Handler&lt;/strong&gt; - The handler object actually puts the message, runnable in the message queue.&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;Message Queue&lt;/strong&gt; - A simple queue that holds message, runnables. These message,runnables are sent by the handler.&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Message Queue&lt;/strong&gt; - A simple queue that holds message, runnables. These message, runnables are sent by the handler.&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;&lt;strong&gt;Looper&lt;/strong&gt; - The looper loops through the message queue and processes the messages, runnables on the respective handler thread. How does it know which thread to process on - each message, runnable on generation is associated with a handler and it is this handler that puts the runnable in the message queue.&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;So the following block diagram explains how all these three elements work together.  Going from left to right, the handler puts the messages, runnables in the message queue&lt;/p&gt;
+&lt;p&gt;So the following block diagram explains how all these three elements work together.  Going from left to right, the handler puts the messages, runnables in the message queue and the looper pulls the oldest ones for execution on the respective HandlerThread.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/images/handler.png&quot; alt=&quot;Making of a HandlerThread&quot; /&gt;&lt;/p&gt;
 
@@ -99,14 +317,14 @@ incorporated an account authenticator. So, I will show the stub implementations&
 
 &lt;p&gt;You can communicate back information from the HandlerThread to the main UI thread by using the runOnUiThread method.&lt;/p&gt;
 
-&lt;p&gt;The following is a good blog explaining in handlers in more detail:&lt;/p&gt;
+&lt;p&gt;The following is a good blog explaining handlers in more detail:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;https://blog.nikitaog.me/2014/10/11/android-looper-handler-handlerthread-i/&quot;&gt;https://blog.nikitaog.me/2014/10/11/android-looper-handler-handlerthread-i/&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 </description>
-        <pubDate>Thu, 14 Apr 2016 17:30:00 +0530</pubDate>
+        <pubDate>Thu, 14 Apr 2016 05:00:00 -0700</pubDate>
         <link>http://primedroid.github.io/archivers/handlerthread</link>
         <guid isPermaLink="true">http://primedroid.github.io/archivers/handlerthread</guid>
         
@@ -253,7 +471,7 @@ not switched on and off again and for different calls from different apps. One c
 &lt;/ul&gt;
 
 </description>
-        <pubDate>Mon, 04 Apr 2016 17:30:00 +0530</pubDate>
+        <pubDate>Mon, 04 Apr 2016 05:00:00 -0700</pubDate>
         <link>http://primedroid.github.io/archivers/syncadapter</link>
         <guid isPermaLink="true">http://primedroid.github.io/archivers/syncadapter</guid>
         
@@ -440,7 +658,7 @@ So let’s get going.&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 </description>
-        <pubDate>Sun, 27 Mar 2016 17:30:00 +0530</pubDate>
+        <pubDate>Sun, 27 Mar 2016 05:00:00 -0700</pubDate>
         <link>http://primedroid.github.io/archivers/accountauthenticator</link>
         <guid isPermaLink="true">http://primedroid.github.io/archivers/accountauthenticator</guid>
         
@@ -454,7 +672,7 @@ So let’s get going.&lt;/p&gt;
         <description>&lt;p&gt;Hello all. I have been thinking about doing this for quite sometime, and finally the time has come. Took me a full weekend to get this setup, but hopefully I can make this a good blog stop for android developers. More than that, I want this to be record of my android research which I may find useful someday.&lt;/p&gt;
 
 </description>
-        <pubDate>Tue, 15 Mar 2016 17:30:00 +0530</pubDate>
+        <pubDate>Tue, 15 Mar 2016 05:00:00 -0700</pubDate>
         <link>http://primedroid.github.io/archivers/introduction</link>
         <guid isPermaLink="true">http://primedroid.github.io/archivers/introduction</guid>
         

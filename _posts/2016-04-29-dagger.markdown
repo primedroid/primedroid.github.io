@@ -1,0 +1,215 @@
+---
+layout: post
+title:  "Dagger"
+date:   2016-04-29 12:00:00
+categories: Android
+permalink: /archivers/handlerthread
+comments: True
+---
+
+Dagger is a very popular dependency injection library created by the team at Square. Although Jake Wharton is associated with it, he has mentioned in his talks that the idea and initial development for Dagger was done by Jesse Wilson and Bob Lee (these two were also
+involved in the development of the another popular D.I.  library - Guice at Google). Dagger uses a Directed Acyclic Graph(DAG) to map the different creational classes and hence the name DAGger. The folks at Google advocate against the use of DI frameworks on account of
+these frameworks using reflection and give example of Guice. However, Dagger was designed to avoid this issue and does not use reflection at all and instead uses static dependency to build the ObjectGraph. To be honest, I don't know understand everything of what I have 
+written in the last two sentences, but it just sounded so cool and so trustworthy that I felt inclined to use it. Once I started using it, I realized the awesome power especially as my app grew. We will be using Dagger 2 for this tutorial.
+
+**Step 1: Dagger setup with Ggradle files**
+
+Modify the build.gradle file for your project to include the neenbedankt plugin:
+
+```javascript
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+```
+Modify the module gradle file to include dagger and provide the jsr annotation (make sure to include the neenbedankt info. at the top of this file):
+
+```javascript
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "com.primedroid.primedagger"
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:24.0.0-alpha1'
+
+    apt 'com.google.dagger:dagger-compiler:2.2'
+    compile 'com.google.dagger:dagger:2.2'
+    provided 'javax.annotation:jsr250-api:1.0'
+}
+```
+
+**Step 2: Fruit class**
+
+In this project we will be creating a Fruit class, which we will be injecting in the MainActivity.class. The class will look as follows:
+
+```java
+public class Fruit {
+    private String name;
+    private String color;
+    private int weight;
+    private static Fruit fruit;
+
+    private Fruit(String name, String color, int weight){
+        this.name = name;
+        this.color = color;
+        this.weight = weight;
+
+    }
+
+    @Override
+    public String toString() {
+        return fruit.name+" "+fruit.color+" "+fruit.weight;
+    }
+
+    public static Fruit getFruit(){
+        if (fruit!=null) {
+            return fruit;
+        } else {
+            fruit = new Fruit("Apple", "red", 10);
+            return fruit;
+        }
+    }
+
+}
+```
+
+**Step 3: App module**
+
+Dagger is all about modules. You will need an App module to start with and then a MyApp module for your object. We will do the MyApp module after the object class creation. Here is the app module:
+
+```java
+@Module
+public class AppModule {
+    Application mApplication;
+
+    public AppModule(Application application) {
+        mApplication = application;
+    }
+
+    @Provides
+    @Singleton
+    Application providesApplication() {
+        return mApplication;
+    }
+
+}
+```
+
+**Step 4: Fruit module and component**
+
+Fruit module is the engine through which Dagger will get a Fruit object:
+
+```java
+@Module
+public class FruitModule {
+    String fruitName;
+
+    public FruitModule(String fruitName){
+        this.fruitName = fruitName;
+    }
+
+    @Provides
+    @Singleton
+        // Application reference must come from AppModule.class
+    Fruit providesFruit(Application application) {
+        return Fruit.getFruit();
+    }
+}
+```
+
+Fruit component is the interface used to inject the Fruit object inside the MainActivity.class:
+
+```java
+@Singleton
+@Component(modules={AppModule.class, FruitModule.class})
+public interface FruitComponent {
+    void inject(MainActivity activity);
+}
+```
+
+**Step 5: MyApp module**
+
+The MyApp module is the last piece in the puzzle:
+
+```java
+public class MyApp extends Application {
+    private FruitComponent mFruitComponent;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mFruitComponent = DaggerFruitComponent.builder().appModule(new AppModule(this))
+                .fruitModule(new FruitModule("Apple"))
+                .build();
+
+    }
+
+    public FruitComponent getFruitComponent() {
+        return mFruitComponent;
+    }
+}
+```
+
+Don't forget to specify this app in the manifest. For the application tag, add the name as .MyApp.
+
+**Step 6: Use Dagger to create the object**
+
+Now got to MainActivity.class and first inject mFruit and then create it use the MyApp application context:
+
+```java
+public class MainActivity extends Activity {
+    @Inject
+    Fruit mFruit;
+    @Inject
+    SharedPreferences sharedPreferences;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        ((MyApp) getApplication()).getFruitComponent().inject(this);
+        Log.d("STRINGFRUITNAME", mFruit.toString() );
+    }
+```
+
+You can access the sample project at the following location:
+
+* [https://github.com/sastagi/primedagger](https://github.com/sastagi/primedagger)
+
+If you want to go in depth, take a look at the following take by the man himself:
+
+* [https://www.parleys.com/tutorial/architecting-android-applications-dagger](https://www.parleys.com/tutorial/architecting-android-applications-dagger)
+
+
