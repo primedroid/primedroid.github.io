@@ -1,0 +1,88 @@
+---
+layout: post
+title:  "RxJava Introduction"
+date:   2016-09-17 12:00:00
+categories: RxJava
+permalink: /archivers/rxjava1
+comments: True
+---
+
+I apologize. I had promised to publish one blog post every two weeks, but since I published my last blog post, I switched over to a new job and the last three months have been a lot of fun but busy adjusting to my new job and co workers. However, I feel like I may have settled now and will be continue my blogging efforts. Today's topic is not specific to Android but to reactive programming. As such, this post will be the first in a series of posts on RxJava for the foreseeable future. I want to really nail this topic down, because I see functional programming the way of the future, so let's put in some topics around it.
+
+This post will be an introduction to the basic building blocks of RxJava - Observable, subscriptions - and every thing about them. You will only need knowledge and sometime in the future I will start weaving in RxJava into Android. I just feel understanding RxJava outside the context of Android is more important before doing them together, so with out further adieu, here we go:
+
+RxJava in non - technical terms: You have a river or stream of water flowing near your house. You want to need some water, so you get a bucket and fill it with water and use it. You soon realize, you could set a up a system on the stream to get clean water delivered to your house though pipes and fill the bucket at home, instead of going to the river. Well, the river is the observable, the bucket is the subscription and the mechanism to manipulate the water to come from the stream to the bucket are RxJava operators.
+
+So, in our world, you get a continuous stream of data(river) e.g. stock market data, you want to view only tech stocks, so you put an RxJava operator to filter it to give you only tech stocks (filtering mechanism in the analogy). Now to view this data and do all the fun things with it, you will need a subscriber to this data. This subscription is where all the data is received and all the fun happens.
+
+**Observable:** Observable is something that can be observed. Duh I knew that. But in the world of RxJava an observable is conceived as something that is constantly emitting data or as they like to call it streams. A couple of ways to create an observable are:
+
+*just* - Useful when you want ot emit a single item
+
+```javascript
+	Observable<String> justExample = Observable.just("Hat");
+	Observable<Integer> justExample = Observable.just(1);
+```
+
+*from* - Useful when you want to emit a stream of items
+
+```javascript
+	Observable<String> fromExample1 = Observable.from({"Cat", "Rat", "Bat");
+	Observable<Integer> fromExample2 = Observable.from({l, 2, 3});
+```
+
+Now, if you want to view this data, you need a subscription. While viewing data, you may encounter any of the three things:
+
+1. Stream is smooth, observable emits data flawlessly. You just want to view it one after the other, next, next, hence you have the method onNext.
+
+2. Your stream may reach it's end, no more data to observe, you are done, finished, completed. Hence the method onCompleted.
+
+3. Your observable may have some issues, data is corrupt, operation fails, you encounter errors, hence the method onError. 
+
+So a subscriber looks like this:
+
+```javascript
+	Subscriber subscriber = new Subscriber<String>() {
+            @Override
+            public void onNext(String s) {
+                System.out.print(s);
+            }
+
+            @Override
+            public void onCompleted() {}
+
+            @Override
+            public void onError(Throwable throwable) {}
+        };
+```
+
+Now to hook them up, just use the following:
+
+```javascript
+	justExample1.subscribe(subscriber);
+	fromExample1.subscribe(subscriber);
+```	
+
+Once you run the above code, you will get the following output for justExample1 - Hat and the following output for fromExample1 - Cat Rat Bat.
+
+The above two ways are used to created observables when you have the data. But, more often than not you will be making an API request or doing some complex operations. Thus, for those case you will need to create the observable using the aptly named keyword create.
+
+*create* - Useful when you have a method/function that will create the Observable. After you are done with the complex operations, you can return the output to the subscriber, by
+
+```javascript
+Observable<String> createExample = Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> observer) {
+                //do networking operations and/or complex calculations
+                observer.onNext("Create Response");
+           }
+        });
+```
+
+And then you can hook this up to a subscriber and use the response in a subscriber. 
+
+This is just a very basic introduction to RxJava. What makes RxJava very interesting is the operators. So, you can manipulate the data coming out of an observable the way you want before sending it to the subscriber i.e. skip a few, send after some time etc. I will talk about operators in my next post. At the moment, you can read more about observables and the other esoteric ways of creating them at the following pages:
+
+* [http://reactivex.io/documentation/observable.html](http://reactivex.io/documentation/observable.html)
+
+* [https://github.com/ReactiveX/RxJava/wiki/Creating-Observables](https://github.com/ReactiveX/RxJava/wiki/Creating-Observables)
