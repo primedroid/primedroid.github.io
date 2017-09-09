@@ -7,11 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>RxJava Introduction « PrimeDroid</title>
-  <meta name="description" content="I apologize. I had promised to publish one blog post every two weeks, but since I published my last blog post, I switched over to a new job and the last thre...">
+  <meta name="description" content="I had promised to publish one blog post every two weeks, but since I published my last blog post, I switched over to a new job and the last three months have...">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://primedroid.github.io/archivers/rxjava1">
-  <link rel="alternate" type="application/rss+xml" title="PrimeDroid" href="http://primedroid.github.io/feed.xml" />
+  <link rel="canonical" href="http://localhost:4000/archivers/rxjavaintroduction">
+  <link rel="alternate" type="application/rss+xml" title="PrimeDroid" href="http://localhost:4000/feed.xml" />
 </head>
 
   <script>
@@ -65,26 +65,26 @@
   </header>
 
   <article class="post-content">
-    <p>I apologize. I had promised to publish one blog post every two weeks, but since I published my last blog post, I switched over to a new job and the last three months have been a lot of fun but busy adjusting to my new job and co workers. However, I feel like I may have settled now and will be continue my blogging efforts. Today’s topic is not specific to Android but to reactive programming. As such, this post will be the first in a series of posts on RxJava for the foreseeable future. I want to really nail this topic down, because I see functional programming the way of the future, so let’s put in some topics around it.</p>
+    <p>I had promised to publish one blog post every two weeks, but since I published my last blog post, I switched over to a new job and the last three months have been a lot of fun but busy adjusting to my new job and co workers. However, I feel like I may have settled now and will resume my blogging efforts. Today’s topic is not specific to Android but to reactive programming. As such, this post will be the first in a series of posts on RxJava for the foreseeable future. I want to really nail this topic down, because I see functional programming the way of the future, so let’s put in some topics around it.</p>
 
-<p>This post will be an introduction to the basic building blocks of RxJava - Observable, subscriptions - and every thing about them. You will only need knowledge and sometime in the future I will start weaving in RxJava into Android. I just feel understanding RxJava outside the context of Android is more important before doing them together, so with out further adieu, here we go:</p>
+<p>This post will be an introduction to the basic building blocks of RxJava - Observables, subscriptions - and every thing about them. You will only need knowledge about Java and sometime in the future I will start weaving RxJava into Android. I just feel understanding RxJava outside the context of Android is more important before doing them together, so without further adieu, here we go:</p>
 
-<p>RxJava in non - technical terms: You have a river or stream of water flowing near your house. You want to need some water, so you get a bucket and fill it with water and use it. You soon realize, you could set a up a system on the stream to get clean water delivered to your house though pipes and fill the bucket at home, instead of going to the river. Well, the river is the observable, the bucket is the subscription and the mechanism to manipulate the water to come from the stream to the bucket are RxJava operators.</p>
+<p>RxJava in non - technical terms: You have a river or stream of water flowing near your house. You need some water, so you get a bucket and fill it with water and use it. You soon realize, you could set up a system on the stream to get clean water delivered to your house through pipes and fill the bucket at home, instead of going to the river. Well, the river is the observable, the bucket is the subscription and the mechanism to manipulate the water to come from the stream to the bucket is an operator.</p>
 
 <p>So, in our world, you get a continuous stream of data(river) e.g. stock market data, you want to view only tech stocks, so you put an RxJava operator to filter it to give you only tech stocks (filtering mechanism in the analogy). Now to view this data and do all the fun things with it, you will need a subscriber to this data. This subscription is where all the data is received and all the fun happens.</p>
 
 <p><strong>Observable:</strong> Observable is something that can be observed. Duh I knew that. But in the world of RxJava an observable is conceived as something that is constantly emitting data or as they like to call it streams. A couple of ways to create an observable are:</p>
 
-<p><em>just</em> - Useful when you want ot emit a single item</p>
+<p><em>just</em> - Useful when you want to emit a single item</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>	<span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span> <span class="nx">justExample</span> <span class="o">=</span> <span class="nx">Observable</span><span class="p">.</span><span class="nx">just</span><span class="p">(</span><span class="s2">"Hat"</span><span class="p">);</span>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code>	<span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span> <span class="nx">justExample</span> <span class="o">=</span> <span class="nx">Observable</span><span class="p">.</span><span class="nx">just</span><span class="p">(</span><span class="s2">"Hat"</span><span class="p">);</span>
 	<span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">Integer</span><span class="o">&gt;</span> <span class="nx">justExample</span> <span class="o">=</span> <span class="nx">Observable</span><span class="p">.</span><span class="nx">just</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
 </code></pre>
 </div>
 
 <p><em>from</em> - Useful when you want to emit a stream of items</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>	<span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span> <span class="nx">fromExample1</span> <span class="o">=</span> <span class="nx">Observable</span><span class="p">.</span><span class="nx">from</span><span class="p">({</span><span class="s2">"Cat"</span><span class="p">,</span> <span class="s2">"Rat"</span><span class="p">,</span> <span class="s2">"Bat"</span><span class="p">);</span>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code>	<span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span> <span class="nx">fromExample1</span> <span class="o">=</span> <span class="nx">Observable</span><span class="p">.</span><span class="nx">from</span><span class="p">({</span><span class="s2">"Cat"</span><span class="p">,</span> <span class="s2">"Rat"</span><span class="p">,</span> <span class="s2">"Bat"</span><span class="p">);</span>
 	<span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">Integer</span><span class="o">&gt;</span> <span class="nx">fromExample2</span> <span class="o">=</span> <span class="nx">Observable</span><span class="p">.</span><span class="nx">from</span><span class="p">({</span><span class="nx">l</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">});</span>
 </code></pre>
 </div>
@@ -105,7 +105,7 @@
 
 <p>So a subscriber looks like this:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>	<span class="nx">Subscriber</span> <span class="nx">subscriber</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Subscriber</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">()</span> <span class="p">{</span>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code>	<span class="nx">Subscriber</span> <span class="nx">subscriber</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Subscriber</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">()</span> <span class="p">{</span>
             <span class="err">@</span><span class="nx">Override</span>
             <span class="kr">public</span> <span class="k">void</span> <span class="nx">onNext</span><span class="p">(</span><span class="nb">String</span> <span class="nx">s</span><span class="p">)</span> <span class="p">{</span>
                 <span class="nx">System</span><span class="p">.</span><span class="nx">out</span><span class="p">.</span><span class="nx">print</span><span class="p">(</span><span class="nx">s</span><span class="p">);</span>
@@ -122,18 +122,18 @@
 
 <p>Now to hook them up, just use the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>	<span class="nx">justExample1</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="nx">subscriber</span><span class="p">);</span>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code>	<span class="nx">justExample1</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="nx">subscriber</span><span class="p">);</span>
 	<span class="nx">fromExample1</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="nx">subscriber</span><span class="p">);</span>
 </code></pre>
 </div>
 
 <p>Once you run the above code, you will get the following output for justExample1 - Hat and the following output for fromExample1 - Cat Rat Bat.</p>
 
-<p>The above two ways are used to created observables when you have the data. But, more often than not you will be making an API request or doing some complex operations. Thus, for those case you will need to create the observable using the aptly named keyword create.</p>
+<p>The above two ways are used to created observables when you have the data. But, more often than not you will be making an API request or doing some complex operations. Thus, for those cases you will need to create the observable using the aptly named keyword create.</p>
 
 <p><em>create</em> - Useful when you have a method/function that will create the Observable. After you are done with the complex operations, you can return the output to the subscriber, by</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span> <span class="nx">createExample</span> <span class="o">=</span> <span class="nx">Observable</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">new</span> <span class="nx">Observable</span><span class="p">.</span><span class="nx">OnSubscribe</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">()</span> <span class="p">{</span>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span> <span class="nx">createExample</span> <span class="o">=</span> <span class="nx">Observable</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="k">new</span> <span class="nx">Observable</span><span class="p">.</span><span class="nx">OnSubscribe</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">()</span> <span class="p">{</span>
             <span class="err">@</span><span class="nx">Override</span>
             <span class="kr">public</span> <span class="k">void</span> <span class="nx">call</span><span class="p">(</span><span class="nx">Subscriber</span><span class="o">&lt;</span><span class="p">?</span> <span class="kr">super</span> <span class="nb">String</span><span class="o">&gt;</span> <span class="nx">observer</span><span class="p">)</span> <span class="p">{</span>
                 <span class="c1">//do networking operations and/or complex calculations</span>
@@ -145,7 +145,7 @@
 
 <p>And then you can hook this up to a subscriber and use the response in a subscriber.</p>
 
-<p>This is just a very basic introduction to RxJava. What makes RxJava very interesting is the operators. So, you can manipulate the data coming out of an observable the way you want before sending it to the subscriber i.e. skip a few, send after some time etc. I will talk about operators in my next post. At the moment, you can read more about observables and the other esoteric ways of creating them at the following pages:</p>
+<p>This is just a very basic introduction to RxJava. What makes RxJava very interesting is the myriad of operators. So, you can manipulate the data coming out of an observable the way you want before sending it to the subscriber i.e. skip a few, send after some time etc. I will talk about operators in my next post. At the moment, you can read more about observables and the other esoteric ways of creating them at the following pages:</p>
 
 <ul>
   <li>
@@ -170,7 +170,7 @@
 <script type="text/javascript">
   /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
   var disqus_shortname = 'primedroidgithubio'; // required: replace example with your forum shortname
-  var disqus_identifier = "/archivers/rxjava1";
+  var disqus_identifier = "/archivers/rxjavaintroduction";
 
   /* * * DON'T EDIT BELOW THIS LINE * * */
   (function() {
@@ -205,7 +205,7 @@
   <div class="col-box-title">Newest Posts</div>
   <ul class="post-list">
     
-      <li><a class="post-link" href="/archivers/rxjava1">RxJava Introduction</a></li>
+      <li><a class="post-link" href="/archivers/rxjavaintroduction">RxJava Introduction</a></li>
     
       <li><a class="post-link" href="/archivers/dagger">Dagger</a></li>
     

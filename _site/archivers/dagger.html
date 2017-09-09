@@ -2,6 +2,7 @@
 <html>
 
   <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,8 +11,8 @@
   <meta name="description" content="Dagger is a very popular dependency injection library created by the team at Square. Although Jake Wharton is associated with it, he has mentioned in his tal...">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://primedroid.github.io/archivers/dagger">
-  <link rel="alternate" type="application/rss+xml" title="PrimeDroid" href="http://primedroid.github.io/feed.xml" />
+  <link rel="canonical" href="http://localhost:4000/archivers/dagger">
+  <link rel="alternate" type="application/rss+xml" title="PrimeDroid" href="http://localhost:4000/feed.xml">
 </head>
 
   <script>
@@ -74,7 +75,8 @@ written in the last two sentences, but it just sounded so cool and so trustworth
 
 <p>Modify the build.gradle file for your project to include the neenbedankt plugin:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">buildscript</span> <span class="p">{</span>
+<div class="language-javascript highlighter-rouge">
+<pre class="highlight"><code><span class="nx">buildscript</span> <span class="p">{</span>
     <span class="nx">repositories</span> <span class="p">{</span>
         <span class="nx">jcenter</span><span class="p">()</span>
     <span class="p">}</span>
@@ -93,7 +95,8 @@ written in the last two sentences, but it just sounded so cool and so trustworth
 </div>
 <p>Modify the module gradle file to include dagger and provide the jsr annotation (make sure to include the neenbedankt info. at the top of this file):</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">apply</span> <span class="nx">plugin</span><span class="err">:</span> <span class="s1">'com.android.application'</span>
+<div class="language-javascript highlighter-rouge">
+<pre class="highlight"><code><span class="nx">apply</span> <span class="nx">plugin</span><span class="err">:</span> <span class="s1">'com.android.application'</span>
 <span class="nx">apply</span> <span class="nx">plugin</span><span class="err">:</span> <span class="s1">'com.neenbedankt.android-apt'</span>
 
 <span class="nx">android</span> <span class="p">{</span>
@@ -130,13 +133,14 @@ written in the last two sentences, but it just sounded so cool and so trustworth
 
 <p>In this project we will be creating a Fruit class, which we will be injecting in the MainActivity.class. The class will look as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Fruit</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge">
+<pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Fruit</span> <span class="o">{</span>
     <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
     <span class="kd">private</span> <span class="n">String</span> <span class="n">color</span><span class="o">;</span>
     <span class="kd">private</span> <span class="kt">int</span> <span class="n">weight</span><span class="o">;</span>
     <span class="kd">private</span> <span class="kd">static</span> <span class="n">Fruit</span> <span class="n">fruit</span><span class="o">;</span>
 
-    <span class="kd">private</span> <span class="n">Fruit</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">color</span><span class="o">,</span> <span class="kt">int</span> <span class="n">weight</span><span class="o">){</span>
+    <span class="kd">private</span> <span class="nf">Fruit</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">color</span><span class="o">,</span> <span class="kt">int</span> <span class="n">weight</span><span class="o">){</span>
         <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
         <span class="k">this</span><span class="o">.</span><span class="na">color</span> <span class="o">=</span> <span class="n">color</span><span class="o">;</span>
         <span class="k">this</span><span class="o">.</span><span class="na">weight</span> <span class="o">=</span> <span class="n">weight</span><span class="o">;</span>
@@ -144,11 +148,11 @@ written in the last two sentences, but it just sounded so cool and so trustworth
     <span class="o">}</span>
 
     <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="n">String</span> <span class="n">toString</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
         <span class="k">return</span> <span class="n">fruit</span><span class="o">.</span><span class="na">name</span><span class="o">+</span><span class="s">" "</span><span class="o">+</span><span class="n">fruit</span><span class="o">.</span><span class="na">color</span><span class="o">+</span><span class="s">" "</span><span class="o">+</span><span class="n">fruit</span><span class="o">.</span><span class="na">weight</span><span class="o">;</span>
     <span class="o">}</span>
 
-    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Fruit</span> <span class="n">getFruit</span><span class="o">(){</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Fruit</span> <span class="nf">getFruit</span><span class="o">(){</span>
         <span class="k">if</span> <span class="o">(</span><span class="n">fruit</span><span class="o">!=</span><span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
             <span class="k">return</span> <span class="n">fruit</span><span class="o">;</span>
         <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
@@ -165,17 +169,18 @@ written in the last two sentences, but it just sounded so cool and so trustworth
 
 <p>Dagger is all about modules. You will need an App module to start with and then a MyApp module for your object. We will do the MyApp module after the object class creation. Here is the app module:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nd">@Module</span>
+<div class="language-java highlighter-rouge">
+<pre class="highlight"><code><span class="nd">@Module</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">AppModule</span> <span class="o">{</span>
     <span class="n">Application</span> <span class="n">mApplication</span><span class="o">;</span>
 
-    <span class="kd">public</span> <span class="n">AppModule</span><span class="o">(</span><span class="n">Application</span> <span class="n">application</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nf">AppModule</span><span class="o">(</span><span class="n">Application</span> <span class="n">application</span><span class="o">)</span> <span class="o">{</span>
         <span class="n">mApplication</span> <span class="o">=</span> <span class="n">application</span><span class="o">;</span>
     <span class="o">}</span>
 
     <span class="nd">@Provides</span>
     <span class="nd">@Singleton</span>
-    <span class="n">Application</span> <span class="n">providesApplication</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">Application</span> <span class="nf">providesApplication</span><span class="o">()</span> <span class="o">{</span>
         <span class="k">return</span> <span class="n">mApplication</span><span class="o">;</span>
     <span class="o">}</span>
 
@@ -187,18 +192,19 @@ written in the last two sentences, but it just sounded so cool and so trustworth
 
 <p>Fruit module is the engine through which Dagger will get a Fruit object:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nd">@Module</span>
+<div class="language-java highlighter-rouge">
+<pre class="highlight"><code><span class="nd">@Module</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">FruitModule</span> <span class="o">{</span>
     <span class="n">String</span> <span class="n">fruitName</span><span class="o">;</span>
 
-    <span class="kd">public</span> <span class="n">FruitModule</span><span class="o">(</span><span class="n">String</span> <span class="n">fruitName</span><span class="o">){</span>
+    <span class="kd">public</span> <span class="nf">FruitModule</span><span class="o">(</span><span class="n">String</span> <span class="n">fruitName</span><span class="o">){</span>
         <span class="k">this</span><span class="o">.</span><span class="na">fruitName</span> <span class="o">=</span> <span class="n">fruitName</span><span class="o">;</span>
     <span class="o">}</span>
 
     <span class="nd">@Provides</span>
     <span class="nd">@Singleton</span>
         <span class="c1">// Application reference must come from AppModule.class</span>
-    <span class="n">Fruit</span> <span class="n">providesFruit</span><span class="o">(</span><span class="n">Application</span> <span class="n">application</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">Fruit</span> <span class="nf">providesFruit</span><span class="o">(</span><span class="n">Application</span> <span class="n">application</span><span class="o">)</span> <span class="o">{</span>
         <span class="k">return</span> <span class="n">Fruit</span><span class="o">.</span><span class="na">getFruit</span><span class="o">();</span>
     <span class="o">}</span>
 <span class="o">}</span>
@@ -207,10 +213,11 @@ written in the last two sentences, but it just sounded so cool and so trustworth
 
 <p>Fruit component is the interface used to inject the Fruit object inside the MainActivity.class:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nd">@Singleton</span>
+<div class="language-java highlighter-rouge">
+<pre class="highlight"><code><span class="nd">@Singleton</span>
 <span class="nd">@Component</span><span class="o">(</span><span class="n">modules</span><span class="o">={</span><span class="n">AppModule</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">FruitModule</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
 <span class="kd">public</span> <span class="kd">interface</span> <span class="nc">FruitComponent</span> <span class="o">{</span>
-    <span class="kt">void</span> <span class="n">inject</span><span class="o">(</span><span class="n">MainActivity</span> <span class="n">activity</span><span class="o">);</span>
+    <span class="kt">void</span> <span class="nf">inject</span><span class="o">(</span><span class="n">MainActivity</span> <span class="n">activity</span><span class="o">);</span>
 <span class="o">}</span>
 </code></pre>
 </div>
@@ -219,11 +226,12 @@ written in the last two sentences, but it just sounded so cool and so trustworth
 
 <p>The MyApp module is the last piece in the puzzle:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyApp</span> <span class="kd">extends</span> <span class="n">Application</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge">
+<pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyApp</span> <span class="kd">extends</span> <span class="n">Application</span> <span class="o">{</span>
     <span class="kd">private</span> <span class="n">FruitComponent</span> <span class="n">mFruitComponent</span><span class="o">;</span>
 
     <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="kt">void</span> <span class="n">onCreate</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">()</span> <span class="o">{</span>
         <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">();</span>
         <span class="n">mFruitComponent</span> <span class="o">=</span> <span class="n">DaggerFruitComponent</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">appModule</span><span class="o">(</span><span class="k">new</span> <span class="n">AppModule</span><span class="o">(</span><span class="k">this</span><span class="o">))</span>
                 <span class="o">.</span><span class="na">fruitModule</span><span class="o">(</span><span class="k">new</span> <span class="n">FruitModule</span><span class="o">(</span><span class="s">"Apple"</span><span class="o">))</span>
@@ -231,7 +239,7 @@ written in the last two sentences, but it just sounded so cool and so trustworth
 
     <span class="o">}</span>
 
-    <span class="kd">public</span> <span class="n">FruitComponent</span> <span class="n">getFruitComponent</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="n">FruitComponent</span> <span class="nf">getFruitComponent</span><span class="o">()</span> <span class="o">{</span>
         <span class="k">return</span> <span class="n">mFruitComponent</span><span class="o">;</span>
     <span class="o">}</span>
 <span class="o">}</span>
@@ -244,7 +252,8 @@ written in the last two sentences, but it just sounded so cool and so trustworth
 
 <p>Now got to MainActivity.class and first inject mFruit and then create it use the MyApp application context:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainActivity</span> <span class="kd">extends</span> <span class="n">Activity</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge">
+<pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainActivity</span> <span class="kd">extends</span> <span class="n">Activity</span> <span class="o">{</span>
     <span class="nd">@Inject</span>
     <span class="n">Fruit</span> <span class="n">mFruit</span><span class="o">;</span>
     <span class="nd">@Inject</span>
@@ -252,7 +261,7 @@ written in the last two sentences, but it just sounded so cool and so trustworth
 
 
     <span class="nd">@Override</span>
-    <span class="kd">protected</span> <span class="kt">void</span> <span class="n">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
         <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
         <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
 
@@ -298,7 +307,8 @@ written in the last two sentences, but it just sounded so cool and so trustworth
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
   })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+</noscript>
 <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
         </div>
@@ -324,7 +334,7 @@ written in the last two sentences, but it just sounded so cool and so trustworth
   <div class="col-box-title">Newest Posts</div>
   <ul class="post-list">
     
-      <li><a class="post-link" href="/archivers/rxjava1">RxJava Introduction</a></li>
+      <li><a class="post-link" href="/archivers/rxjavaintroduction">RxJava Introduction</a></li>
     
       <li><a class="post-link" href="/archivers/dagger">Dagger</a></li>
     
@@ -346,7 +356,7 @@ written in the last two sentences, but it just sounded so cool and so trustworth
 
     <footer class="footer">
 <div class="wrapper">
-&copy; 2016 Santosh Astagi
+© 2016 Santosh Astagi
 </div>
 </footer>
 

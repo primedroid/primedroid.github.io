@@ -3,11 +3,11 @@ layout: post
 title:  "RxJava Introduction"
 date:   2016-09-17 12:00:00
 categories: RxJava
-permalink: /archivers/rxjava1
+permalink: /archivers/rxjavaintroduction
 comments: True
 ---
 
-I apologize. I had promised to publish one blog post every two weeks, but since I published my last blog post, I switched over to a new job and the last three months have been a lot of fun but busy adjusting to my new job and co workers. However, I feel like I may have settled now and will resume my blogging efforts. Today's topic is not specific to Android but to reactive programming. As such, this post will be the first in a series of posts on RxJava for the foreseeable future. I want to really nail this topic down, because I see functional programming the way of the future, so let's put in some topics around it.
+I had promised to publish one blog post every two weeks, but since I published my last blog post, I switched over to a new job and the last three months have been a lot of fun but busy adjusting to my new job and co workers. However, I feel like I may have settled now and will resume my blogging efforts. Today's topic is not specific to Android but to reactive programming. As such, this post will be the first in a series of posts on RxJava for the foreseeable future. I want to really nail this topic down, because I see functional programming the way of the future, so let's put in some topics around it.
 
 This post will be an introduction to the basic building blocks of RxJava - Observables, subscriptions - and every thing about them. You will only need knowledge about Java and sometime in the future I will start weaving RxJava into Android. I just feel understanding RxJava outside the context of Android is more important before doing them together, so without further adieu, here we go:
 

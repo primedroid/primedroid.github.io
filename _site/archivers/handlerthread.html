@@ -10,8 +10,8 @@
   <meta name="description" content="If you have been an Android developer for sometime, no doubt you follow the gospel - move heavy duty processing stuff to a non-ui thread. This is because if ...">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://primedroid.github.io/archivers/handlerthread">
-  <link rel="alternate" type="application/rss+xml" title="PrimeDroid" href="http://primedroid.github.io/feed.xml" />
+  <link rel="canonical" href="http://localhost:4000/archivers/handlerthread">
+  <link rel="alternate" type="application/rss+xml" title="PrimeDroid" href="http://localhost:4000/feed.xml" />
 </head>
 
   <script>
@@ -113,18 +113,18 @@ You will need to perform the heavy operations on some other thread and then comm
 
 <p>First, you will create the class that extends the HandlerThread:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">class</span> <span class="nc">MyWorkerThread</span> <span class="kd">extends</span> <span class="n">HandlerThread</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">class</span> <span class="nc">MyWorkerThread</span> <span class="kd">extends</span> <span class="n">HandlerThread</span> <span class="o">{</span>
         <span class="kd">private</span> <span class="n">Handler</span> <span class="n">mWorkerHandler</span><span class="o">;</span>
 
-        <span class="kd">public</span> <span class="n">MyWorkerThread</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">){</span>
+        <span class="kd">public</span> <span class="nf">MyWorkerThread</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">){</span>
             <span class="kd">super</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
         <span class="o">}</span>
 
-        <span class="kd">public</span> <span class="kt">void</span> <span class="n">postTask</span><span class="o">(</span><span class="n">Runnable</span> <span class="n">task</span><span class="o">){</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">postTask</span><span class="o">(</span><span class="n">Runnable</span> <span class="n">task</span><span class="o">){</span>
             <span class="n">mWorkerHandler</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="n">task</span><span class="o">);</span>
         <span class="o">}</span>
 
-        <span class="kd">public</span> <span class="kt">void</span> <span class="n">prepareHandler</span><span class="o">(){</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">prepareHandler</span><span class="o">(){</span>
             <span class="n">mWorkerHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">(</span><span class="n">getLooper</span><span class="o">());</span>
         <span class="o">}</span>
     <span class="o">}</span>
@@ -135,7 +135,7 @@ You will need to perform the heavy operations on some other thread and then comm
 
 <p>Now, imagine you have a runnable called task. Inorder to run it on the HandlerThread, create an instance of the HandlerThread first, start it like any normal thread and prepare it to so it gets a handle of the looper:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">mWorkerThread</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyWorkerThread</span><span class="o">(</span><span class="s">"workerThread"</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">mWorkerThread</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyWorkerThread</span><span class="o">(</span><span class="s">"workerThread"</span><span class="o">);</span>
 <span class="n">mWorkerThread</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
 <span class="n">mWorkerThread</span><span class="o">.</span><span class="na">prepareHandler</span><span class="o">();</span>
 </code></pre>
@@ -143,7 +143,7 @@ You will need to perform the heavy operations on some other thread and then comm
 
 <p>Now to run the task runnable on the HandlerThread, post it on the HandlerThread instance as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">mWorkerThread</span><span class="o">.</span><span class="na">postTask</span><span class="o">(</span><span class="n">theTask</span><span class="o">());</span>    
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">mWorkerThread</span><span class="o">.</span><span class="na">postTask</span><span class="o">(</span><span class="n">theTask</span><span class="o">());</span>    
 </code></pre>
 </div>
 
@@ -205,7 +205,7 @@ You will need to perform the heavy operations on some other thread and then comm
   <div class="col-box-title">Newest Posts</div>
   <ul class="post-list">
     
-      <li><a class="post-link" href="/archivers/rxjava1">RxJava Introduction</a></li>
+      <li><a class="post-link" href="/archivers/rxjavaintroduction">RxJava Introduction</a></li>
     
       <li><a class="post-link" href="/archivers/dagger">Dagger</a></li>
     

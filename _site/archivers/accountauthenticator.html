@@ -10,8 +10,8 @@
   <meta name="description" content="Let us start at the beginning. You have an android app and want to allow users to create an account on your app. You might think about storing the user ident...">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://primedroid.github.io/archivers/accountauthenticator">
-  <link rel="alternate" type="application/rss+xml" title="PrimeDroid" href="http://primedroid.github.io/feed.xml" />
+  <link rel="canonical" href="http://localhost:4000/archivers/accountauthenticator">
+  <link rel="alternate" type="application/rss+xml" title="PrimeDroid" href="http://localhost:4000/feed.xml" />
 </head>
 
   <script>
@@ -105,7 +105,7 @@ So let’s get going.</p>
 
 <p>This is where the fun begins. Now you will need an instance of AccountManager here. So create one (mAccountManager). Create a method checkAccountExists and pass authTokenType (this is the token type defined under AccountInfo) to it.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">checkAccount</span><span class="p">(</span><span class="kd">final</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">checkAccount</span><span class="o">(</span><span class="kd">final</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">)</span> <span class="o">{</span>
         <span class="kd">final</span> <span class="n">Account</span> <span class="n">availableAccounts</span><span class="o">[]</span> <span class="o">=</span> <span class="n">mAccountManager</span><span class="o">.</span><span class="na">getAccountsByType</span><span class="o">(</span><span class="n">AccountInfo</span><span class="o">.</span><span class="na">ACCOUNT_TYPE</span><span class="o">);</span>
 
         <span class="k">if</span> <span class="o">(</span><span class="n">availableAccounts</span><span class="o">.</span><span class="na">length</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
@@ -123,10 +123,10 @@ So let’s get going.</p>
 
 <p>In this method we are asking the AccountManager to return all the accounts matching this account type. If there are no accounts found, we will call addNewAccount, which directs the user to the login screen. We will talk about the getExistingAccountAuthToken method in step 10.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">addNewAccount</span><span class="p">(</span><span class="n">String</span> <span class="n">accountType</span><span class="o">,</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">addNewAccount</span><span class="o">(</span><span class="n">String</span> <span class="n">accountType</span><span class="o">,</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">)</span> <span class="o">{</span>
         <span class="kd">final</span> <span class="n">AccountManagerFuture</span><span class="o">&lt;</span><span class="n">Bundle</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">mAccountManager</span><span class="o">.</span><span class="na">addAccount</span><span class="o">(</span><span class="n">accountType</span><span class="o">,</span> <span class="n">authTokenType</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="k">new</span> <span class="n">AccountManagerCallback</span><span class="o">&lt;</span><span class="n">Bundle</span><span class="o">&gt;()</span> <span class="o">{</span>
             <span class="nd">@Override</span>
-            <span class="kd">public</span> <span class="kt">void</span> <span class="n">run</span><span class="o">(</span><span class="n">AccountManagerFuture</span><span class="o">&lt;</span><span class="n">Bundle</span><span class="o">&gt;</span> <span class="n">future</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">(</span><span class="n">AccountManagerFuture</span><span class="o">&lt;</span><span class="n">Bundle</span><span class="o">&gt;</span> <span class="n">future</span><span class="o">)</span> <span class="o">{</span>
                 <span class="k">try</span> <span class="o">{</span>
                     <span class="n">Bundle</span> <span class="n">bnd</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">getResult</span><span class="o">();</span>
                 <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
@@ -144,8 +144,8 @@ So let’s get going.</p>
 
 <p>The following method calls the LoginActivity:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="n">Bundle</span> <span class="n">addAccount</span><span class="o">(</span><span class="n">AccountAuthenticatorResponse</span> <span class="n">response</span><span class="o">,</span> <span class="n">String</span> <span class="n">accountType</span><span class="o">,</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">requiredFeatures</span><span class="o">,</span> <span class="n">Bundle</span> <span class="n">options</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">NetworkErrorException</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Bundle</span> <span class="nf">addAccount</span><span class="o">(</span><span class="n">AccountAuthenticatorResponse</span> <span class="n">response</span><span class="o">,</span> <span class="n">String</span> <span class="n">accountType</span><span class="o">,</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">requiredFeatures</span><span class="o">,</span> <span class="n">Bundle</span> <span class="n">options</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">NetworkErrorException</span> <span class="o">{</span>
         <span class="kd">final</span> <span class="n">Intent</span> <span class="n">intent</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="n">MainActivity</span><span class="o">.</span><span class="na">mContext</span><span class="o">,</span>  <span class="n">LoginActivity</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
         <span class="n">intent</span><span class="o">.</span><span class="na">putExtra</span><span class="o">(</span><span class="n">AccountAuthenticator</span><span class="o">.</span><span class="na">ARG_ACCOUNT_TYPE</span><span class="o">,</span> <span class="n">accountType</span><span class="o">);</span>
         <span class="n">intent</span><span class="o">.</span><span class="na">putExtra</span><span class="o">(</span><span class="n">AccountAuthenticator</span><span class="o">.</span><span class="na">ARG_AUTH_TYPE</span><span class="o">,</span> <span class="n">authTokenType</span><span class="o">);</span>
@@ -173,7 +173,7 @@ So let’s get going.</p>
 
 <p>When the user clicks the login button,  we want to add the account to the Account manager. So create a method called addAccount in your LoginActivity and call it on the click of login button:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">addAccount</span><span class="p">(</span><span class="o">){</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">addAccount</span><span class="o">(){</span>
         <span class="c1">//This is where you make the server call and get the authorization tokens. Adding dummy stuff here.</span>
         <span class="n">String</span> <span class="n">username</span> <span class="o">=</span> <span class="n">mEmailField</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
         <span class="n">String</span> <span class="n">password</span> <span class="o">=</span> <span class="n">mPasswordField</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
@@ -199,12 +199,12 @@ So let’s get going.</p>
 
 <p>Addressing step 7 here. When the user launches the app again, getExistingAccountAuthToken will be called returning information regarding the account. You can get the username, auth token and any other information that you store during account creation from here.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">getExistingAccountAuthToken</span><span class="p">(</span><span class="n">Account</span> <span class="n">account</span><span class="o">,</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">getExistingAccountAuthToken</span><span class="o">(</span><span class="n">Account</span> <span class="n">account</span><span class="o">,</span> <span class="n">String</span> <span class="n">authTokenType</span><span class="o">)</span> <span class="o">{</span>
         <span class="kd">final</span> <span class="n">AccountManagerFuture</span><span class="o">&lt;</span><span class="n">Bundle</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">mAccountManager</span><span class="o">.</span><span class="na">getAuthToken</span><span class="o">(</span><span class="n">account</span><span class="o">,</span> <span class="n">authTokenType</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
 
-        <span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">new</span> <span class="nf">Thread</span><span class="o">(</span><span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
             <span class="nd">@Override</span>
-            <span class="kd">public</span> <span class="kt">void</span> <span class="n">run</span><span class="o">()</span> <span class="o">{</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
                 <span class="k">try</span> <span class="o">{</span>
                     <span class="n">Bundle</span> <span class="n">bundle</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">getResult</span><span class="o">();</span>
                     <span class="kd">final</span> <span class="n">String</span> <span class="n">authtoken</span> <span class="o">=</span> <span class="n">bundle</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">AccountManager</span><span class="o">.</span><span class="na">KEY_ACCOUNT_NAME</span><span class="o">);</span>
@@ -290,7 +290,7 @@ So let’s get going.</p>
   <div class="col-box-title">Newest Posts</div>
   <ul class="post-list">
     
-      <li><a class="post-link" href="/archivers/rxjava1">RxJava Introduction</a></li>
+      <li><a class="post-link" href="/archivers/rxjavaintroduction">RxJava Introduction</a></li>
     
       <li><a class="post-link" href="/archivers/dagger">Dagger</a></li>
     

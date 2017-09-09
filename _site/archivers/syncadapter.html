@@ -10,8 +10,8 @@
   <meta name="description" content="Without doubt, your app will communicate with the server and fetch some data for the the users to view, unless you have some extraordinary idea that is self ...">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://primedroid.github.io/archivers/syncadapter">
-  <link rel="alternate" type="application/rss+xml" title="PrimeDroid" href="http://primedroid.github.io/feed.xml" />
+  <link rel="canonical" href="http://localhost:4000/archivers/syncadapter">
+  <link rel="alternate" type="application/rss+xml" title="PrimeDroid" href="http://localhost:4000/feed.xml" />
 </head>
 
   <script>
@@ -103,7 +103,7 @@ not switched on and off again and for different calls from different apps. One c
 
 <p>This is the end of stubby stuff. This is where we create SyncAdapter.java. The main sync operation happens from onPerformSync which will be called from the MainActivity.java</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onPerformSync</span><span class="p">(</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onPerformSync</span><span class="o">(</span>
             <span class="n">Account</span> <span class="n">account</span><span class="o">,</span>
             <span class="n">Bundle</span> <span class="n">extras</span><span class="o">,</span>
             <span class="n">String</span> <span class="n">authority</span><span class="o">,</span>
@@ -135,7 +135,7 @@ not switched on and off again and for different calls from different apps. One c
 
 <p>First of write a method to create your account in the Sync adapter.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="n">Account</span> <span class="nf">CreateSyncAccount</span><span class="p">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="n">Account</span> <span class="nf">CreateSyncAccount</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
         <span class="n">Account</span> <span class="n">newAccount</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Account</span><span class="o">(</span>
                 <span class="n">ACCOUNT</span><span class="o">,</span> <span class="n">ACCOUNT_TYPE</span><span class="o">);</span>
         <span class="n">AccountManager</span> <span class="n">accountManager</span> <span class="o">=</span>
@@ -165,7 +165,7 @@ not switched on and off again and for different calls from different apps. One c
 
 <p>Almost there. Now create the account and content resolver in onCreate and call the syncadapter as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>	<span class="n">mAccount</span> <span class="o">=</span> <span class="n">CreateSyncAccount</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code>	<span class="n">mAccount</span> <span class="o">=</span> <span class="n">CreateSyncAccount</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 
         <span class="n">mResolver</span> <span class="o">=</span> <span class="n">getContentResolver</span><span class="o">();</span>
         
@@ -250,7 +250,7 @@ not switched on and off again and for different calls from different apps. One c
   <div class="col-box-title">Newest Posts</div>
   <ul class="post-list">
     
-      <li><a class="post-link" href="/archivers/rxjava1">RxJava Introduction</a></li>
+      <li><a class="post-link" href="/archivers/rxjavaintroduction">RxJava Introduction</a></li>
     
       <li><a class="post-link" href="/archivers/dagger">Dagger</a></li>
     
